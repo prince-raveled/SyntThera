@@ -1,0 +1,5 @@
+ranking_endurance.tsv: 29,680 compounds
+ranking_resistance.tsv: 29,680 compounds
+endurance: 82 candidates; 40 strong-match approved drugs flagged cytotoxic; top 5: sitagliptin, tioconazole, olmesartan-medoxomil, phenytoin, mepacrine
+resistance: 77 candidates; 35 strong-match approved drugs flagged cytotoxic; top 5: phenytoin, sitagliptin, sertraline, thiothixene, protriptyline
+JSON-LD written; top-25 approved table has InChIKeys for 50/50 drugs

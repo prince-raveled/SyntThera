@@ -1,0 +1,23 @@
+ranking genes within each compound ...
+loading GSFM and embedding drug gene sets ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+ready in 0.0 min  (GSFM vocab covers 97.1% of L1000 genes)
+muscle|resistance|3.5-4h         up 150 dn 150  FDR<0.05:   878  top: BRD-K70875838, BRD-K32040515, BRD-K10640729  [135s]
+muscle|endurance|3.5-4h          up 150 dn 150  FDR<0.05:   377  top: BRD-K10640729, BRD-K32040515, BRD-K70875838  [128s]
+muscle|endurance|early           up 150 dn 150  FDR<0.05:   747  top: BRD-K09528868, BRD-K32040515, BRD-K03857568  [128s]
+muscle|resistance|early          up 150 dn 114  FDR<0.05:   774  top: BRD-K09528868, BRD-K28916077, BRD-K41719870  [114s]
+muscle|resistance|24h            up 150 dn 150  FDR<0.05:   617  top: kenpaullone, BRD-K37848780, BRD-K96758498  [132s]
+muscle|endurance|24h             up 150 dn 150  FDR<0.05:   872  top: AZD5438, BRD-K85901675, BRD-K21364577  [129s]
+adipose|endurance|early          up  50 dn  50 (fallback)  FDR<0.05:   720  top: BRD-A50701104, BRD-K25746333, BRD-K57205873  [56s]
+adipose|resistance|early         up  50 dn  50 (fallback)  FDR<0.05:   243  top: helveticoside, periplocymarin, digitoxigenin  [60s]
+adipose|resistance|3.5-4h        up  50 dn  50 (fallback)  FDR<0.05:   268  top: BRD-K18749194, BRD-K70905242, BRD-K82206012  [57s]
+adipose|endurance|3.5-4h         up  50 dn  50 (fallback)  FDR<0.05:    61  top: BRD-K38081867, BRD-K67096634, BRD-K82206012  [59s]
+adipose|resistance|24h           up  50 dn  50 (fallback)  FDR<0.05:    18  top: BRD-K74512976, importazole, BRD-K78493876  [58s]
+adipose|endurance|24h            up  50 dn  50 (fallback)  FDR<0.05:    77  top: BRD-K55104181, BRD-K06166879, BRD-K87412446  [55s]
+blood|resistance|early           up 150 dn 150  FDR<0.05:  1160  top: BRD-K13960193, mevastatin, everolimus  [137s]
+blood|endurance|early            up 150 dn 143  FDR<0.05:   974  top: BRD-K92317137, F-1566-0341, BRD-U28903152  [134s]
+blood|resistance|3.5-4h          up 150 dn 150  FDR<0.05:   441  top: BRD-K13960193, BRD-K49010888, cantharidin  [131s]
+blood|endurance|3.5-4h           up 150 dn 150  FDR<0.05:   438  top: BRD-K13960193, iodoacetic-acid, CT-200783  [128s]
+blood|resistance|24h             up  50 dn  50 (fallback)  FDR<0.05:   947  top: BRD-K38553273, BRD-K16852474, nicardipine  [54s]
+blood|endurance|24h              up  50 dn  50 (fallback)  FDR<0.05:     9  top: BRD-K03736784, BRD-K22562809, BRD-K43396185  [55s]
+done in 29.2 min

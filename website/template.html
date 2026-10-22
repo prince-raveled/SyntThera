@@ -1,0 +1,1354 @@
+<title>SynThera</title>
+<meta name="description" content="SynThera: mimicking exercise through molecular discovery. Connecting the molecular signature of exercise in 175 people to 29,680 compounds to find approved drugs worth testing.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Cdefs%3E%3ClinearGradient id=%22t%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%231e4466%22/%3E%3Cstop offset=%221%22 stop-color=%22%230f2438%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x=%222%22 y=%222%22 width=%2260%22 height=%2260%22 rx=%2216%22 fill=%22url(%23t)%22/%3E%3Cg transform=%22translate(32 32) scale(.8) translate(-32 -32)%22%3E%3Cmask id=%22bm%22 maskUnits=%22userSpaceOnUse%22 x=%220%22 y=%220%22 width=%2264%22 height=%2264%22%3E%3Crect width=%2264%22 height=%2264%22 fill=%22%23fff%22/%3E%3Ccircle cx=%2213%22 cy=%2232%22 r=%225.2%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%222.4%22/%3E%3Ccircle cx=%2251%22 cy=%2232%22 r=%225.2%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%222.4%22/%3E%3C/mask%3E%3Crect x=%2220%22 y=%2227.5%22 width=%2224%22 height=%229%22 rx=%224.5%22 fill=%22%23eaf1f7%22/%3E%3Cg mask=%22url(%23bm)%22%3E%3Cpolygon points=%2213,17 22.5,22.5 22.5,41.5 13,47 3.5,41.5 3.5,22.5%22 fill=%22%23ee8a63%22/%3E%3Cpolygon points=%2251,17 60.5,22.5 60.5,41.5 51,47 41.5,41.5 41.5,22.5%22 fill=%22%235fa3cf%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* One big idea: a story zone (light or dark with the theme) where a single WebGL particle sculpture morphs
+   DNA helix -> exercise fingerprint -> drug capsule -> matching network -> good vs stress -> shortlist
+   as you scroll, followed by theme-aware reading zones. Colour encodes meaning only:
+   copper = switched on / matches exercise, steel blue = switched off / opposes, teal = good adaptations, amber = stress. */
+:root {
+  --bg: #f4f7fa;
+  --bg-2: #eaf0f5;
+  --surface: #ffffff;
+  --ink: #0f2438;
+  --ink-2: #17324d;
+  --muted: #5a6b7b;
+  --line: #dce4ec;
+  --on: #c2603f;
+  --off: #2d6485;
+  --good: #2e8c7e;
+  --warn: #b7791f;
+  --endur: #3a7fb0;
+  --resist: #7b5ea7;
+  --cell: #e9eff4;
+  /* story-to-page fade */
+  --fade-a: rgb(241 245 248 / 0.25);
+  --fade-b: rgb(248 250 252 / 0.65);
+  --fade-c: rgb(253 254 255 / 0.92);
+  --focus: #2d6485;
+  --shadow-1: 0 1px 2px rgb(15 36 56 / 0.05);
+  --shadow-2: 0 1px 2px rgb(15 36 56 / 0.04), 0 22px 44px -20px rgb(15 36 56 / 0.25);
+  /* story zone (hero + 3D method story): light here, dark in the dark theme */
+  --z-bg: #eef3f7;
+  --z-ink: #0f2438;
+  --z-ink-2: #17324d;
+  --z-muted: #536677;
+  --z-line: rgb(15 36 56 / 0.10);
+  --z-line-strong: rgb(15 36 56 / 0.28);
+  --z-on: #c2603f;
+  --z-off: #2d6485;
+  --z-good: #2e8c7e;
+  --z-warn: #b7791f;
+  --z-glow1: rgb(45 100 133 / 0.16);
+  --z-glow2: rgb(194 96 63 / 0.09);
+  --z-glow3: rgb(46 140 126 / 0.08);
+  --z-dot: rgb(15 36 56 / 0.07);
+  --z-panel: rgb(255 255 255 / 0.94);
+  --z-card: linear-gradient(180deg, rgb(255 255 255 / 0.95), rgb(248 251 253 / 0.96));
+  --z-card-shadow: 0 1px 2px rgb(15 36 56 / 0.05), 0 30px 60px -32px rgb(15 36 56 / 0.30);
+  --z-chip: rgb(255 255 255 / 0.95);
+  --z-chip-bg: rgb(15 36 56 / 0.03);
+  --z-ghost: rgb(255 255 255 / 0.8);
+  --z-btn-bg: #17324d;
+  --z-btn-fg: #ffffff;
+  --z-navbg: rgb(241 245 248 / 0.92);
+  --z-hover: rgb(15 36 56 / 0.06);
+  --g1: #a9502f;
+  --g2: #c2603f;
+  --g3: #d9825a;
+  --font: "Geist", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: "Geist Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --t-hero: clamp(2.6rem, 1rem + 4.2vw, 4.6rem);
+  --t-h2: clamp(1.8rem, 1.1rem + 2.2vw, 2.9rem);
+  --t-small: 0.875rem;
+  --t-tiny: 0.75rem;
+  --r: 16px;
+  --ease: cubic-bezier(.2,.75,.2,1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a1522; --bg-2: #0d1b2b; --surface: #0f1e2e; --ink: #e8eef4; --ink-2: #c9d6e2; --muted: #93a4b5; --line: #1e3245;
+    --on: #ee8a63; --off: #5fa3cf; --good: #4fc1af; --warn: #e7b04b; --endur: #6db1e0; --resist: #a98fd6; --cell: #16283a; --focus: #5fa3cf; --fade-a: rgb(10 22 36 / 0.3); --fade-b: rgb(13 27 42 / 0.7); --fade-c: rgb(15 30 46 / 0.92); --z-bg: #060f1a; --z-ink: #eaf1f7; --z-ink-2: #cfdeeb; --z-muted: #9db1c4; --z-line: rgb(255 255 255 / 0.10); --z-line-strong: rgb(255 255 255 / 0.3); --z-on: #ee8a63; --z-off: #5fa3cf; --z-good: #4fc1af; --z-warn: #e7b04b; --z-glow1: rgb(45 100 133 / 0.40); --z-glow2: rgb(194 96 63 / 0.16); --z-glow3: rgb(46 140 126 / 0.14); --z-dot: rgb(255 255 255 / 0.10); --z-panel: rgb(8 18 30 / 0.9); --z-card: linear-gradient(180deg, rgb(15 31 49 / 0.92), rgb(7 16 27 / 0.94)); --z-card-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 30px 60px -30px rgb(0 0 0 / 0.7); --z-chip: rgb(9 21 35 / 0.88); --z-chip-bg: rgb(255 255 255 / 0.04); --z-ghost: rgb(255 255 255 / 0.06); --z-btn-bg: #eaf1f7; --z-btn-fg: #07111c; --z-navbg: rgb(6 15 26 / 0.9); --z-hover: rgb(255 255 255 / 0.08); --g1: #f2a27c; --g2: #ee8a63; --g3: #f6c3a5;
+    --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3); --shadow-2: 0 1px 2px rgb(0 0 0 / 0.3), 0 22px 46px -20px rgb(0 0 0 / 0.7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a1522; --bg-2: #0d1b2b; --surface: #0f1e2e; --ink: #e8eef4; --ink-2: #c9d6e2; --muted: #93a4b5; --line: #1e3245;
+  --on: #ee8a63; --off: #5fa3cf; --good: #4fc1af; --warn: #e7b04b; --endur: #6db1e0; --resist: #a98fd6; --cell: #16283a; --focus: #5fa3cf; --fade-a: rgb(10 22 36 / 0.3); --fade-b: rgb(13 27 42 / 0.7); --fade-c: rgb(15 30 46 / 0.92); --z-bg: #060f1a; --z-ink: #eaf1f7; --z-ink-2: #cfdeeb; --z-muted: #9db1c4; --z-line: rgb(255 255 255 / 0.10); --z-line-strong: rgb(255 255 255 / 0.3); --z-on: #ee8a63; --z-off: #5fa3cf; --z-good: #4fc1af; --z-warn: #e7b04b; --z-glow1: rgb(45 100 133 / 0.40); --z-glow2: rgb(194 96 63 / 0.16); --z-glow3: rgb(46 140 126 / 0.14); --z-dot: rgb(255 255 255 / 0.10); --z-panel: rgb(8 18 30 / 0.9); --z-card: linear-gradient(180deg, rgb(15 31 49 / 0.92), rgb(7 16 27 / 0.94)); --z-card-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 30px 60px -30px rgb(0 0 0 / 0.7); --z-chip: rgb(9 21 35 / 0.88); --z-chip-bg: rgb(255 255 255 / 0.04); --z-ghost: rgb(255 255 255 / 0.06); --z-btn-bg: #eaf1f7; --z-btn-fg: #07111c; --z-navbg: rgb(6 15 26 / 0.9); --z-hover: rgb(255 255 255 / 0.08); --g1: #f2a27c; --g2: #ee8a63; --g3: #f6c3a5;
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3); --shadow-2: 0 1px 2px rgb(0 0 0 / 0.3), 0 22px 46px -20px rgb(0 0 0 / 0.7);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-padding-top: 84px; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 1rem; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: clip; }
+a { color: var(--off); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
+h1, h2, h3, h4 { margin: 0; text-wrap: balance; letter-spacing: -0.03em; line-height: 1.06; font-weight: 650; }
+h2 { font-size: var(--t-h2); font-weight: 680; letter-spacing: -0.04em; }
+h3 { font-size: 1.15rem; letter-spacing: -0.015em; line-height: 1.25; font-weight: 620; }
+p { margin: 0; }
+kbd { font-family: var(--mono); font-size: 0.8em; padding: 1px 6px; border-radius: 5px; border: 1px solid var(--line); }
+.mono, .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 28px; }
+@media (max-width: 560px) { .wrap { padding-inline: 16px; } }
+.eyebrow { font-family: var(--mono); font-size: var(--t-tiny); letter-spacing: 0.16em; text-transform: uppercase; color: var(--off); font-weight: 500; display: inline-flex; align-items: center; gap: 10px; }
+.term { border-bottom: 1px dotted currentColor; cursor: help; position: relative; }
+.term:hover::after, .term:focus::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); width: max-content; max-width: 260px; background: #0f2438; color: #eaf1f7; font: 400 var(--t-tiny)/1.45 var(--font); letter-spacing: 0; text-transform: none; padding: 8px 10px; border-radius: 8px; z-index: 50; box-shadow: var(--shadow-2); pointer-events: none; white-space: normal; text-align: left; }
+
+/* ---------- global chrome ---------- */
+.progress { position: fixed; inset: 0 0 auto 0; height: 2px; z-index: 70; pointer-events: none; }
+.progress i { display: block; height: 2px; background: linear-gradient(90deg, var(--z-off), var(--z-on)); transform-origin: left; transform: scaleX(0); }
+#gl { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; display: block; }
+#gl.off { display: none; }
+.glcap { position: fixed; right: 28px; bottom: 26px; z-index: 1; font: 500 0.7rem var(--mono); letter-spacing: 0.08em; color: var(--z-muted); display: flex; gap: 10px; align-items: center; pointer-events: none; transition: opacity 400ms ease; }
+.glcap.off { opacity: 0; }
+@media (max-width: 980px) { .glcap { display: none; } }
+.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 60; padding-top: env(safe-area-inset-top, 0px); transition: background-color 300ms ease, border-color 300ms ease, transform 450ms var(--ease); border-bottom: 1px solid transparent; }
+.nav.scrolled { background: color-mix(in oklab, var(--bg) 82%, transparent); backdrop-filter: saturate(1.4) blur(10px); border-bottom-color: color-mix(in oklab, var(--line) 80%, transparent); }
+.nav.dark.scrolled { background: var(--z-navbg); backdrop-filter: none; border-bottom-color: var(--z-line); }
+.nav.hide { transform: translateY(-110%); }
+.nav .wrap { display: flex; align-items: center; gap: 22px; min-height: 70px; }
+.logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); flex: none; transition: color 300ms ease; }
+.nav.dark .logo { color: var(--z-ink); }
+.logo { --mk-ink: var(--z-ink); --mk-cu: var(--z-on); --mk-bl: var(--z-off); }
+.logo svg { width: 46px; height: 46px; }
+.logo b { font-size: 1.32rem; font-weight: 700; letter-spacing: -0.04em; }
+.links { display: flex; gap: 2px; margin-left: auto; }
+.links a { position: relative; color: var(--muted); text-decoration: none; font-size: var(--t-small); font-weight: 500; padding: 8px 12px; border-radius: 999px; white-space: nowrap; transition: color 150ms ease, background-color 150ms ease; }
+.nav.dark .links a { color: var(--z-muted); }
+.links a:hover { color: var(--ink); background: color-mix(in oklab, var(--ink) 6%, transparent); }
+.nav.dark .links a:hover { color: var(--z-ink); background: var(--z-hover); }
+.links a.on { color: var(--ink); background: color-mix(in oklab, var(--ink) 7%, transparent); }
+.nav.dark .links a.on { color: var(--z-ink); background: var(--z-hover); }
+@media (max-width: 1060px) { .links { display: none; } }
+.navtools { display: flex; gap: 8px; align-items: center; margin-left: 10px; }
+@media (max-width: 1060px) { .navtools { margin-left: auto; } }
+.btn { position: relative; display: inline-flex; align-items: center; gap: 9px; font: 560 var(--t-small) var(--font); padding: 11px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; cursor: pointer; white-space: nowrap; transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease; }
+.btn:hover { border-color: color-mix(in oklab, var(--ink) 30%, var(--line)); box-shadow: var(--shadow-1); }
+.btn.primary { background: var(--ink-2); border-color: var(--ink-2); color: #fff; }
+:root[data-theme="dark"] .btn.primary { color: var(--bg); background: var(--ink); border-color: var(--ink); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.primary { color: var(--bg); background: var(--ink); border-color: var(--ink); } }
+.btn svg { width: 15px; height: 15px; flex: none; }
+.btn kbd { border-color: color-mix(in oklab, currentColor 35%, transparent); font-size: 0.68rem; opacity: 0.85; }
+.nav.dark .btn.primary { background: var(--z-btn-bg); color: var(--z-btn-fg); border-color: var(--z-btn-bg); }
+.iconbtn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); display: grid; place-items: center; cursor: pointer; flex: none; }
+.nav.dark .iconbtn { background: var(--z-ghost); border-color: var(--z-line); color: var(--z-ink); }
+.iconbtn svg { width: 16px; height: 16px; }
+@media (max-width: 480px) { .btn.searchbtn span, .btn.searchbtn kbd { display: none; } .btn.searchbtn { padding: 11px; } }
+
+/* ---------- story zone ---------- */
+.story { position: relative; color: var(--z-ink); }
+.story::before { content: ""; position: absolute; inset: 0; z-index: -1;
+  background: radial-gradient(1100px 760px at 78% 10%, var(--z-glow1), transparent 62%),
+              radial-gradient(900px 700px at 6% 40%, var(--z-glow2), transparent 64%),
+              radial-gradient(1000px 800px at 85% 74%, var(--z-glow3), transparent 62%), var(--z-bg); }
+.story::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0.4;
+  background-image: radial-gradient(var(--z-dot) 1px, transparent 1px); background-size: 28px 28px;
+  -webkit-mask-image: linear-gradient(180deg, #000, transparent 18%, transparent 82%, #000); mask-image: linear-gradient(180deg, #000, transparent 18%, transparent 82%, #000); }
+.story .wrap { position: relative; z-index: 1; }
+.story .eyebrow { color: var(--z-off); }
+.hero { min-height: 100vh; min-height: 100svh; display: grid; align-content: center; padding-block: 110px 48px; position: relative; }
+.hero > .wrap, .panel > .wrap { width: 100%; }
+.hero-in { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); gap: 40px; align-items: center; }
+@media (max-width: 980px) { .hero-in { grid-template-columns: minmax(0, 1fr); } }
+.hero h1 { font-size: var(--t-hero); font-weight: 700; letter-spacing: -0.05em; line-height: 0.98; margin-top: 22px; }
+.hero h1 .grad { background: linear-gradient(100deg, var(--g1) 0%, var(--g2) 45%, var(--g3) 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero h1.is-split .grad { background: none; color: var(--z-on); }
+@keyframes sheen { 0%, 100% { background-position: 0% 0; } 50% { background-position: 100% 0; } }
+.hero .sub { font-size: 1.24rem; font-weight: 500; color: var(--z-ink-2); margin-top: 22px; letter-spacing: -0.01em; }
+.hero .lead { margin-top: 12px; font-size: 1.04rem; color: var(--z-muted); max-width: 54ch; }
+.hero .lead b { color: var(--z-ink); font-weight: 600; }
+.hero .term { color: var(--z-ink-2); }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+.cta .btn { padding: 14px 24px; font-size: 0.95rem; }
+.story .btn.primary { background: var(--z-btn-bg); color: var(--z-btn-fg); border-color: var(--z-btn-bg); }
+.story .btn.ghost { background: var(--z-ghost); color: var(--z-ink); border-color: var(--z-line); }
+.story .btn.ghost:hover { border-color: var(--z-line-strong); }
+.floaters { position: relative; height: 520px; }
+@media (max-width: 980px) { .floaters { display: none; } }
+.chipf { position: absolute; display: inline-flex; align-items: center; gap: 8px; font: 500 0.74rem var(--mono); padding: 7px 11px; border-radius: 999px; background: var(--z-chip); border: 1px solid var(--z-line); color: var(--z-ink); white-space: nowrap; box-shadow: 0 6px 18px -10px rgb(15 36 56 / 0.25); }
+.chipf i { width: 7px; height: 7px; border-radius: 50%; }
+.chipf b { font-weight: 500; }
+.chipf.up b { color: var(--z-on); } .chipf.dn b { color: var(--z-off); }
+.chipf.cap { background: none; border-color: transparent; color: var(--z-muted); font-size: 0.68rem; letter-spacing: 0.08em; }
+@media (prefers-reduced-motion: no-preference) { .chipf:not(.cap) { animation: bob 6s ease-in-out infinite; } @keyframes bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } } }
+.hstats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin-top: 64px; border: 1px solid var(--z-line); border-radius: 18px; overflow: hidden; background: var(--z-line); }
+@media (max-width: 760px) { .hstats { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 40px; } }
+.hstat { background: var(--z-panel); padding: 18px 20px; display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; align-items: center; }
+@media (max-width: 420px) { .hstat { grid-template-columns: minmax(0, 1fr); padding: 14px; } .hstat .ic { display: none; } }
+.hstat .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in oklab, var(--z-off) 12%, transparent); color: var(--z-off); }
+.hstat .ic.c { background: color-mix(in oklab, var(--z-on) 12%, transparent); color: var(--z-on); }
+.hstat .ic svg { width: 20px; height: 20px; }
+.hstat b { display: block; font-size: 1.6rem; font-weight: 680; letter-spacing: -0.045em; line-height: 1; font-variant-numeric: tabular-nums; }
+.hstat span { display: block; font-size: var(--t-tiny); color: var(--z-muted); margin-top: 4px; }
+.scrollcue { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); display: grid; justify-items: center; gap: 8px; color: var(--z-muted); text-decoration: none; font: 500 0.66rem var(--mono); letter-spacing: 0.16em; text-transform: uppercase; }
+.scrollcue i { width: 22px; height: 34px; border: 1.5px solid var(--z-line-strong); border-radius: 12px; position: relative; }
+.scrollcue i::after { content: ""; position: absolute; left: 50%; top: 7px; width: 3px; height: 7px; margin-left: -1.5px; border-radius: 2px; background: var(--z-ink); }
+@media (prefers-reduced-motion: no-preference) { .scrollcue i::after { animation: wheel 1.8s var(--ease) infinite; } @keyframes wheel { 0% { transform: translateY(0); opacity: 1; } 70% { transform: translateY(12px); opacity: 0; } 100% { opacity: 0; } } }
+@media (max-height: 820px) { .scrollcue { display: none; } }
+
+.panel { min-height: 100vh; min-height: 100svh; display: grid; align-items: center; padding-block: 96px; }
+@media (max-width: 980px) { .panel { align-items: end; padding-block: 45vh 40px; } }
+.pcard { max-width: 500px; padding: 32px; border-radius: 22px; background: var(--z-card); border: 1px solid var(--z-line); box-shadow: var(--z-card-shadow); display: grid; gap: 16px; }
+@media (max-width: 980px) { .pcard { max-width: none; padding: 24px; } }
+.pcard .stepno { display: flex; align-items: baseline; gap: 12px; font-family: var(--mono); font-size: var(--t-tiny); color: var(--z-muted); letter-spacing: 0.14em; }
+.pcard .stepno b { font-family: var(--font); font-size: 3.4rem; font-weight: 300; letter-spacing: -0.06em; color: var(--z-ink); line-height: 0.9; }
+.pcard h2 { font-size: clamp(1.7rem, 1.2rem + 1.6vw, 2.4rem); color: var(--z-ink); }
+.pcard p { color: var(--z-muted); font-size: 1.02rem; }
+.pcard .zchips { display: flex; flex-wrap: wrap; gap: 8px; }
+.zchip { font: 500 0.74rem var(--mono); padding: 6px 11px; border-radius: 999px; border: 1px solid var(--z-line); background: var(--z-chip-bg); color: var(--z-ink); }
+.zchip.on { border-color: color-mix(in oklab, var(--z-on) 50%, transparent); color: var(--z-on); }
+.zchip.b { border-color: color-mix(in oklab, var(--z-off) 50%, transparent); color: var(--z-off); }
+.zchip.g { border-color: color-mix(in oklab, var(--z-good) 50%, transparent); color: var(--z-good); }
+.zchip.w { border-color: color-mix(in oklab, var(--z-warn) 50%, transparent); color: var(--z-warn); }
+.story-fade { height: 55vh; position: relative; z-index: 2; pointer-events: none;
+  margin-bottom: -1px;
+  background: linear-gradient(180deg, transparent 0%, var(--fade-a) 24%, var(--fade-b) 52%, var(--fade-c) 80%, var(--surface) 100%); }
+.stagebar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 4px; }
+.stagebar i { height: 3px; border-radius: 2px; background: var(--z-line); }
+.stagebar i.done { background: linear-gradient(90deg, var(--z-off), var(--z-on)); }
+
+/* ---------- light zones ---------- */
+.chapter { padding-block: 112px; border-bottom: 1px solid var(--line); position: relative; z-index: 2; background: var(--bg); }
+@media (max-width: 760px) { .chapter { padding-block: 72px; } }
+.alt { background: var(--surface); }
+.chead { display: grid; gap: 16px; max-width: 780px; margin-bottom: 48px; }
+.chead p { color: var(--muted); font-size: 1.08rem; max-width: 62ch; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 24px; display: grid; gap: 14px; min-width: 0; align-content: start; }
+.alt .card { background: var(--bg); }
+.card > p { font-size: var(--t-small); color: var(--muted); }
+.pill { display: inline-flex; align-items: center; gap: 6px; font: 500 0.7rem var(--font); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; background: var(--surface); text-transform: none; }
+.pill.live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 3px color-mix(in oklab, var(--good) 25%, transparent); }
+.pill.ok { color: var(--good); border-color: color-mix(in oklab, var(--good) 40%, var(--line)); background: color-mix(in oklab, var(--good) 8%, var(--surface)); }
+.pill.warn { color: var(--warn); border-color: color-mix(in oklab, var(--warn) 45%, var(--line)); background: color-mix(in oklab, var(--warn) 9%, var(--surface)); }
+.pill.blue { color: var(--off); border-color: color-mix(in oklab, var(--off) 40%, var(--line)); background: color-mix(in oklab, var(--off) 7%, var(--surface)); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: var(--t-tiny); color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+
+/* signature scrollytelling */
+.sigwrap { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 56px; align-items: start; }
+@media (max-width: 980px) { .sigwrap { grid-template-columns: minmax(0, 1fr); gap: 24px; } }
+.sticky { position: sticky; top: 96px; }
+@media (max-width: 980px) { .sticky { top: 74px; z-index: 3; } }
+.chart-card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow-2); padding: 24px 26px 20px; display: grid; gap: 14px; min-width: 0; }
+@media (max-width: 980px) { .chart-card { padding: 14px 16px; gap: 9px; } .chart-card .cc-sub, .chart-card .legend { display: none; } }
+.cc-head { display: flex; justify-content: space-between; gap: 14px; align-items: start; }
+.cc-head h3 { font-size: 1.04rem; }
+.cc-sub { font-size: var(--t-tiny); color: var(--muted); margin-top: 3px; }
+.dge { display: grid; gap: 6px; }
+@media (max-width: 980px) { .dge { gap: 3px; } .dge-row:nth-child(n+8) { display: none; } }
+.dge-row { display: grid; grid-template-columns: 78px minmax(0, 1fr) 46px; gap: 10px; align-items: center; font-family: var(--mono); font-size: 0.74rem; }
+.dge-row .g { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dge-row .v { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.track { position: relative; height: 13px; }
+.track::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: color-mix(in oklab, var(--line) 70%, transparent); }
+.track::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--muted); opacity: 0.55; }
+.track i { position: absolute; top: 1px; bottom: 1px; width: 50%; border-radius: 3px; transform: scaleX(0); }
+.track i.pos { left: 50%; transform-origin: left; background: linear-gradient(90deg, color-mix(in oklab, var(--on) 70%, transparent), var(--on)); }
+.track i.neg { right: 50%; transform-origin: right; background: linear-gradient(270deg, color-mix(in oklab, var(--off) 70%, transparent), var(--off)); }
+@media (prefers-reduced-motion: no-preference) { .track i { transition: transform 900ms var(--ease); } }
+.axis { display: grid; grid-template-columns: 78px minmax(0, 1fr) 46px; gap: 10px; font-family: var(--mono); font-size: 0.66rem; color: var(--muted); }
+.axis .ticks { position: relative; height: 14px; }
+.axis .ticks span { position: absolute; transform: translateX(-50%); }
+.scrub { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.scrub button { font: 500 var(--t-tiny) var(--mono); background: none; border: 0; padding: 10px 0 0; color: var(--muted); cursor: pointer; text-align: left; position: relative; }
+.scrub button::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; border-radius: 3px; background: var(--line); }
+.scrub button::after { content: ""; position: absolute; left: 0; top: 0; height: 3px; border-radius: 3px; background: var(--on); width: 0; }
+.scrub button[aria-pressed="true"] { color: var(--ink); }
+.scrub button[aria-pressed="true"]::after { width: 100%; }
+@media (prefers-reduced-motion: no-preference) { .scrub button::after { transition: width 500ms var(--ease); } }
+.tsteps { display: grid; }
+.tstep { min-height: 72vh; display: grid; align-content: center; gap: 12px; padding-block: 24px; opacity: 0.32; transition: opacity 500ms ease; }
+.tstep.on { opacity: 1; }
+@media (max-width: 980px) { .tstep { min-height: 52vh; align-content: end; } }
+.tstep .when { font-family: var(--mono); font-size: var(--t-tiny); letter-spacing: 0.14em; text-transform: uppercase; color: var(--on); }
+.tstep h3 { font-size: clamp(1.4rem, 1.05rem + 1.1vw, 2rem); font-weight: 660; letter-spacing: -0.035em; }
+.tstep p { color: var(--muted); max-width: 46ch; }
+.tstep .big { font-weight: 680; font-size: clamp(2.4rem, 1.6rem + 2.6vw, 3.8rem); letter-spacing: -0.05em; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+.tstep .big small { font-size: 0.36em; color: var(--muted); font-weight: 500; letter-spacing: -0.01em; margin-left: 8px; }
+
+.ex-grid { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: 24px; align-items: start; margin-top: 72px; }
+@media (max-width: 980px) { .ex-grid { grid-template-columns: minmax(0, 1fr); } }
+table.act { border-collapse: separate; border-spacing: 4px; width: 100%; font-size: var(--t-small); }
+table.act th { font-weight: 500; color: var(--muted); font-size: var(--t-tiny); text-align: left; padding: 2px 4px; white-space: nowrap; }
+table.act th.c { text-align: center; }
+table.act td.v { font-family: var(--mono); text-align: center; padding: 11px 4px; border-radius: 8px; background: color-mix(in oklab, var(--on) calc(var(--h) * 1%), var(--cell)); font-size: 0.8rem; }
+table.act td.v.strong { color: #fff; }
+.genes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; }
+@media (max-width: 520px) { .genes { grid-template-columns: minmax(0, 1fr); } }
+.gene { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 14px; align-items: center; }
+.gene svg { width: 112px; height: 60px; display: block; }
+.gene svg .tr { stroke-dasharray: 260; stroke-dashoffset: 0; }
+.gene b { font-family: var(--mono); font-size: 0.8rem; font-weight: 500; display: block; }
+.gene span { font-size: var(--t-small); color: var(--muted); line-height: 1.35; display: block; }
+.mods { display: inline-flex; gap: 7px; align-items: center; font-size: var(--t-tiny); color: var(--muted); }
+.mods i { width: 16px; height: 3px; display: inline-block; border-radius: 2px; }
+
+/* findings bento */
+.bento { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; }
+@media (max-width: 1000px) { .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .bento { grid-template-columns: minmax(0, 1fr); } }
+.tile { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 26px; display: grid; gap: 14px; align-content: start; min-width: 0; overflow: hidden; }
+.alt .tile { background: var(--bg); }
+.tile.a { grid-column: span 4; grid-row: span 2; }
+.tile.b, .tile.c { grid-column: span 2; }
+.tile.d, .tile.e { grid-column: span 3; }
+@media (max-width: 1000px) { .tile.a, .tile.b, .tile.c, .tile.d, .tile.e { grid-column: span 2; grid-row: auto; } .tile.b, .tile.c { grid-column: span 1; } }
+@media (max-width: 640px) { .tile.a, .tile.b, .tile.c, .tile.d, .tile.e { grid-column: auto; } }
+.tile .tag { font-family: var(--mono); font-size: var(--t-tiny); color: var(--off); letter-spacing: 0.12em; }
+.tile h3 { font-size: clamp(1.2rem, 1rem + 0.7vw, 1.55rem); font-weight: 660; letter-spacing: -0.03em; }
+.tile p { color: var(--muted); font-size: var(--t-small); max-width: 60ch; }
+.bignum { font-weight: 700; font-size: clamp(2.6rem, 1.8rem + 2.6vw, 4.2rem); letter-spacing: -0.06em; line-height: 0.95; font-variant-numeric: tabular-nums; }
+.bignum.on { color: var(--on); } .bignum.off { color: var(--off); } .bignum.good { color: var(--good); }
+.versus { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 520px) { .versus { grid-template-columns: minmax(0, 1fr); } }
+.vlist { border: 1px solid var(--line); border-radius: 14px; background: var(--bg); padding: 16px; display: grid; gap: 7px; align-content: start; min-width: 0; }
+.alt .vlist { background: var(--surface); }
+.vlist h4 { font-size: var(--t-small); font-weight: 600; letter-spacing: 0; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.vlist .it { position: relative; display: flex; justify-content: space-between; gap: 8px; font-size: var(--t-small); padding: 4px 0 7px; border-bottom: 1px dashed var(--line); min-width: 0; align-items: center; }
+.vlist .it span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-transform: capitalize; }
+.vlist .it.x span:first-child { color: var(--muted); }
+.vlist .it.x span:first-child { position: relative; }
+.vlist .it.x span:first-child::after { content: ""; position: absolute; left: -2px; right: -2px; top: 52%; height: 1.5px; background: var(--warn); transform-origin: left; }
+.scale { position: relative; height: 54px; }
+.scale .ax { position: absolute; left: 0; right: 0; top: 22px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--off), var(--cell) 45%, var(--cell) 55%, var(--on)); }
+.scale .pin { position: absolute; top: 17px; transform: translateX(-50%); width: 16px; height: 16px; border-radius: 50%; background: var(--off); border: 3px solid var(--surface); box-shadow: 0 0 0 1px var(--off), 0 4px 12px -2px color-mix(in oklab, var(--off) 70%, transparent); }
+.scale .end { position: absolute; top: 36px; font-size: 0.68rem; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.venn { position: relative; display: flex; align-items: center; justify-content: center; height: 140px; }
+.venn div { width: 112px; height: 112px; border-radius: 50%; display: grid; place-items: center; text-align: center; font-size: 0.78rem; font-weight: 600; padding: 14px; line-height: 1.25; }
+.venn .h { background: color-mix(in oklab, var(--on) 15%, transparent); border: 2px solid var(--on); }
+.venn .r { background: color-mix(in oklab, var(--off) 15%, transparent); border: 2px solid var(--off); }
+.venn .gap { width: auto; height: auto; padding: 0 10px; font-family: var(--mono); font-size: 1.4rem; color: var(--muted); background: none; border: 0; font-weight: 400; }
+@media (max-width: 1240px) and (min-width: 1001px) { .venn div { width: 92px; height: 92px; font-size: 0.72rem; } }
+.hbars { display: grid; gap: 12px; }
+.hb { display: grid; grid-template-columns: 168px minmax(0, 1fr) 44px; gap: 12px; align-items: center; font-size: var(--t-small); }
+@media (max-width: 460px) { .hb { grid-template-columns: 112px minmax(0, 1fr) 40px; } }
+.hb .t { height: 10px; background: var(--cell); border-radius: 5px; overflow: hidden; }
+.hb .t i { display: block; height: 100%; border-radius: 5px; background: var(--off); }
+.hb .t i.ai { background: linear-gradient(90deg, var(--on), color-mix(in oklab, var(--on) 70%, var(--off))); }
+.hb b { font-family: var(--mono); font-weight: 500; text-align: right; }
+.spark { display: grid; grid-auto-flow: column; gap: 4px; align-items: end; height: 56px; }
+.spark i { display: block; border-radius: 3px 3px 0 0; background: linear-gradient(180deg, var(--good), color-mix(in oklab, var(--good) 35%, transparent)); transform-origin: bottom; }
+
+/* marquee */
+.marquee { position: relative; z-index: 2; background: var(--ink-2); color: #dfe8f1; overflow: hidden; padding-block: 18px; }
+:root[data-theme="dark"] .marquee { background: #07101a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .marquee { background: #07101a; } }
+.mq-track { display: flex; width: max-content; }
+@media (prefers-reduced-motion: no-preference) { .mq-track { animation: mq 70s linear infinite; } .marquee:hover .mq-track { animation-play-state: paused; } @keyframes mq { to { transform: translateX(-50%); } } }
+.mq-item { display: inline-flex; align-items: center; gap: 12px; padding-inline: 22px; font-size: 1.05rem; font-weight: 500; letter-spacing: -0.02em; white-space: nowrap; text-transform: capitalize; }
+.mq-item i { width: 7px; height: 7px; border-radius: 50%; background: #ee8a63; }
+.mq-item small { font: 500 0.72rem var(--mono); color: #9db1c4; text-transform: none; }
+
+/* candidates */
+.tabs { display: inline-flex; position: relative; background: var(--bg-2); border: 1px solid var(--line); border-radius: 999px; padding: 4px; }
+.alt .tabs { background: var(--bg); }
+.tabs button { position: relative; z-index: 1; font: 560 var(--t-small) var(--font); border: 0; background: none; color: var(--muted); padding: 8px 16px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"], .tabs button[aria-pressed="true"] { color: var(--ink); }
+.tabs .ind { position: absolute; z-index: 0; top: 4px; bottom: 4px; left: 4px; border-radius: 999px; background: var(--surface); box-shadow: 0 1px 3px rgb(15 36 56 / 0.15); }
+@media (prefers-reduced-motion: no-preference) { .tabs .ind { transition: transform 300ms var(--ease), width 300ms var(--ease); } }
+@media (max-width: 560px) { .tabs.full { display: grid; grid-template-columns: 1fr 1fr; width: 100%; } .tabs.full button { white-space: normal; padding: 8px 10px; line-height: 1.25; } }
+.cand-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; margin-bottom: 32px; }
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; perspective: 1200px; }
+@media (max-width: 980px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .cards { grid-template-columns: minmax(0, 1fr); } }
+.dcard { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 22px; display: grid; gap: 13px; align-content: start; min-width: 0; overflow: hidden; transition: border-color 220ms ease, box-shadow 220ms ease; --mx: 50%; --my: 0%; }
+.alt .dcard { background: var(--bg); }
+.dcard::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 250ms ease; background: radial-gradient(420px circle at var(--mx) var(--my), color-mix(in oklab, var(--on) 14%, transparent), transparent 45%); }
+.dcard:hover { box-shadow: var(--shadow-2); border-color: color-mix(in oklab, var(--on) 28%, var(--line)); }
+.dcard:hover::before { opacity: 1; }
+.dcard > * { position: relative; }
+.dcard .top { display: flex; justify-content: space-between; align-items: start; gap: 10px; }
+.dcard .rk { font-size: 2.6rem; font-weight: 300; letter-spacing: -0.06em; line-height: 0.9; color: var(--muted); font-variant-numeric: tabular-nums; }
+.dcard .mol { width: 46px; height: 46px; color: color-mix(in oklab, var(--off) 70%, var(--muted)); }
+.dcard h3 { font-size: 1.36rem; text-transform: capitalize; overflow-wrap: anywhere; letter-spacing: -0.03em; }
+.dcard .use { font-size: var(--t-small); color: var(--ink-2); line-height: 1.4; }
+.dcard .moa { font-size: var(--t-tiny); color: var(--muted); line-height: 1.45; }
+.gs { display: grid; gap: 7px; padding: 12px; border-radius: 12px; background: var(--bg-2); }
+.gs div { display: grid; grid-template-columns: 52px minmax(0, 1fr) 40px; gap: 8px; align-items: center; font-size: var(--t-tiny); color: var(--muted); }
+.gs .t { height: 6px; background: var(--surface); border-radius: 3px; overflow: hidden; }
+.gs .t i { display: block; height: 100%; border-radius: 3px; transform-origin: left; }
+.gs b { font-family: var(--mono); font-weight: 500; text-align: right; color: var(--ink); }
+.facts { display: flex; flex-wrap: wrap; gap: 6px; }
+.alllist { list-style: none; margin: 22px 0 0; padding: 0; border-top: 1px solid var(--line); columns: 2; column-gap: 36px; }
+@media (max-width: 720px) { .alllist { columns: 1; } }
+.alllist li { break-inside: avoid; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: var(--t-small); }
+.alllist .n { font-family: var(--mono); color: var(--muted); font-size: var(--t-tiny); }
+.alllist button { all: unset; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 560; text-transform: capitalize; }
+.alllist button:hover { color: var(--off); }
+.alllist button:focus-visible { outline: 2px solid var(--focus); }
+.alllist .b { font-family: var(--mono); font-size: var(--t-tiny); color: var(--good); }
+
+/* explorer */
+.explorer { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 1000px) { .explorer { grid-template-columns: minmax(0, 1fr); } }
+.rail { display: grid; gap: 16px; position: sticky; top: 92px; }
+@media (max-width: 1000px) { .rail { position: static; } }
+.rail .tabs { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+.matrix { display: grid; grid-template-columns: 58px repeat(3, minmax(0, 1fr)); gap: 6px; font-size: var(--t-small); }
+.matrix .hd { color: var(--muted); font-size: var(--t-tiny); display: flex; align-items: end; padding-bottom: 2px; }
+.matrix .rowhd { font-weight: 560; display: flex; align-items: center; font-size: var(--t-small); }
+.cellbtn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 10px; padding: 9px 9px 8px; text-align: left; cursor: pointer; display: grid; gap: 1px; min-width: 0; font: inherit; transition: border-color 140ms ease, transform 140ms ease; }
+.cellbtn:hover { border-color: var(--muted); transform: translateY(-1px); }
+.cellbtn .t { font-family: var(--mono); font-size: 0.74rem; font-weight: 500; }
+.cellbtn .g { font-size: 0.68rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cellbtn .heat { height: 4px; border-radius: 2px; margin-top: 6px; background: color-mix(in oklab, var(--on) calc(var(--h) * 1%), var(--cell)); }
+.cellbtn.weak { background: repeating-linear-gradient(135deg, var(--surface) 0 6px, var(--bg-2) 6px 8px); color: var(--muted); }
+.cellbtn[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.sigcard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: grid; gap: 10px; min-width: 0; }
+.chip { font-family: var(--mono); font-size: 0.72rem; padding: 2px 7px; border-radius: 5px; white-space: nowrap; }
+.chip.up { background: color-mix(in oklab, var(--on) calc(var(--w) * 1%), var(--cell)); }
+.chip.down { background: color-mix(in oklab, var(--off) calc(var(--w) * 1%), var(--cell)); }
+.chip.strong { color: #fff; }
+.note { font-size: var(--t-small); padding: 10px 12px; border-radius: 10px; background: color-mix(in oklab, var(--warn) 10%, var(--surface)); border: 1px solid color-mix(in oklab, var(--warn) 35%, var(--line)); color: var(--ink); }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 5px 14px; font-size: var(--t-small); margin: 0; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 0.8rem; }
+.kv dd.txt { font-family: var(--font); font-size: var(--t-small); }
+.readout { min-width: 0; display: grid; gap: 12px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.search { position: relative; flex: 1 1 260px; min-width: 0; }
+.search input { width: 100%; font: inherit; padding: 12px 14px 12px 42px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); transition: border-color 150ms ease, box-shadow 150ms ease; }
+.search input:focus { border-color: var(--off); box-shadow: 0 0 0 4px color-mix(in oklab, var(--off) 18%, transparent); outline: none; }
+.search svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--muted); }
+.toolbar select { font: inherit; font-size: var(--t-small); padding: 11px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); }
+.check { display: inline-flex; gap: 7px; align-items: center; font-size: var(--t-small); cursor: pointer; }
+.check input { accent-color: var(--off); width: 16px; height: 16px; }
+.count { font-size: var(--t-tiny); color: var(--muted); }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+table.rank { width: 100%; border-collapse: collapse; font-size: var(--t-small); }
+table.rank th { text-align: left; font: 600 0.68rem var(--font); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 13px 12px 11px; border-bottom: 1px solid var(--line); white-space: nowrap; background: color-mix(in oklab, var(--bg-2) 50%, var(--surface)); }
+table.rank td { padding: 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+table.rank tr.drug { cursor: pointer; }
+table.rank tr.drug:hover td { background: color-mix(in oklab, var(--bg-2) 60%, var(--surface)); }
+table.rank tr.drug[aria-expanded="true"] td { background: var(--bg-2); }
+.rkc { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rkc small { display: block; color: var(--muted); font-size: 0.68rem; }
+.dname { font-weight: 600; text-transform: capitalize; }
+.dmoa { color: var(--muted); font-size: var(--t-tiny); max-width: 36ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ben { position: relative; width: 104px; height: 10px; background: var(--cell); border-radius: 5px; }
+.ben::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--muted); }
+.ben i { position: absolute; top: 2px; bottom: 2px; border-radius: 3px; }
+.ben i.pos { background: var(--good); left: 50%; }
+.ben i.neg { background: var(--warn); right: 50%; }
+.benval { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
+.conf { font-size: var(--t-tiny); font-weight: 600; }
+.conf.good { color: var(--good); } .conf.warn { color: var(--warn); } .conf.none { color: var(--muted); font-weight: 500; }
+@media (max-width: 700px) { .hide-sm { display: none; } }
+.more { justify-self: start; }
+.empty { padding: 28px; color: var(--muted); text-align: center; }
+.detail td { background: var(--bg-2); padding: 0 !important; }
+.detail-body { padding: 20px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; }
+@media (max-width: 820px) { .detail-body { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: no-preference) { .detail-body { animation: unfold 420ms var(--ease); } @keyframes unfold { from { transform: translateY(-6px); clip-path: inset(0 0 100% 0); } to { transform: none; clip-path: inset(0 0 0 0); } } }
+.mbars { display: grid; gap: 7px; }
+.mbars div { display: grid; grid-template-columns: 130px minmax(0, 1fr) 60px; gap: 8px; align-items: center; font-size: var(--t-tiny); color: var(--muted); }
+.mbars .t { height: 7px; background: var(--surface); border-radius: 4px; overflow: hidden; }
+.mbars .t i { display: block; height: 100%; background: var(--off); border-radius: 4px; }
+.mbars .t i.ai { background: var(--on); }
+.mbars b { font-family: var(--mono); font-weight: 500; color: var(--ink); text-align: right; }
+.heatgrid { display: grid; grid-template-columns: 54px repeat(3, minmax(0, 1fr)); gap: 3px; font-size: 0.7rem; }
+.heatgrid .h { color: var(--muted); font-size: 0.64rem; display: flex; align-items: end; }
+.heatgrid .rh { font-weight: 560; display: flex; align-items: center; }
+.heatgrid .c { font-family: var(--mono); padding: 6px 3px; border-radius: 5px; text-align: center; background: color-mix(in oklab, var(--on) calc(var(--h) * 1%), var(--cell)); }
+.heatgrid .c.strong { color: #fff; }
+.heatgrid .c.weak { opacity: 0.5; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 520px) { .two { grid-template-columns: minmax(0, 1fr); } }
+
+/* evidence */
+.ev { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; align-items: start; }
+@media (max-width: 900px) { .ev { grid-template-columns: minmax(0, 1fr); } }
+.ev .card h3 { font-size: 1.1rem; }
+.verdict { justify-self: start; }
+.chart { width: 100%; overflow-x: auto; }
+.chart svg { display: block; width: 100%; height: auto; min-width: 480px; }
+.chart.small svg { min-width: 300px; }
+svg text { fill: var(--muted); font-family: var(--mono); font-size: 11px; }
+svg .ink { fill: var(--ink); }
+svg .grid { stroke: var(--line); stroke-width: 1; }
+svg .axisl { stroke: var(--muted); stroke-width: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .play .pop { animation: pop 650ms var(--ease) backwards; transform-box: fill-box; transform-origin: center; }
+  .play .bar { animation: growx 1000ms var(--ease) backwards; transform-box: fill-box; transform-origin: left center; }
+  @keyframes pop { from { transform: scale(0); } }
+  @keyframes growx { from { transform: scaleX(0); } }
+}
+table.plain { width: 100%; border-collapse: collapse; font-size: var(--t-small); }
+table.plain td, table.plain th { text-align: left; padding: 9px 10px 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.plain th { font-size: var(--t-tiny); color: var(--muted); font-weight: 600; }
+table.mat { border-collapse: separate; border-spacing: 3px; font-family: var(--mono); font-size: 0.74rem; }
+table.mat th { color: var(--muted); font-weight: 500; padding: 2px 6px; text-align: center; }
+table.mat td { text-align: center; padding: 6px 8px; border-radius: 5px; min-width: 52px; }
+
+/* map, rat, limits, research */
+.mapgrid { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 22px; align-items: start; }
+@media (max-width: 900px) { .mapgrid { grid-template-columns: minmax(0, 1fr); } }
+.canvasbox { position: relative; width: 100%; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: var(--surface); }
+.canvasbox canvas { width: 100%; display: block; }
+.tip { position: absolute; pointer-events: none; background: #0f2438; color: #eaf1f7; font-size: var(--t-tiny); padding: 6px 10px; border-radius: 8px; white-space: nowrap; transform: translate(-50%, -135%); box-shadow: var(--shadow-2); }
+.ratgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; align-items: start; }
+@media (max-width: 900px) { .ratgrid { grid-template-columns: minmax(0, 1fr); } }
+.ratnums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 520px) { .ratnums { grid-template-columns: minmax(0, 1fr); } }
+.bign b { display: block; font-size: 1.9rem; font-weight: 680; letter-spacing: -0.045em; font-variant-numeric: tabular-nums; }
+.bign span { font-size: var(--t-tiny); color: var(--muted); line-height: 1.35; display: block; }
+.limits { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 760px) { .limits { grid-template-columns: minmax(0, 1fr); } }
+.limits li { padding: 20px 22px; border: 1px solid var(--line); border-radius: var(--r); display: grid; grid-template-columns: 40px 1fr; gap: 14px; background: var(--surface); align-items: start; }
+.limits .ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in oklab, var(--off) 10%, var(--surface)); color: var(--off); }
+.limits .ico svg { width: 20px; height: 20px; }
+.limits b { font-weight: 600; display: block; }
+.limits li div span { color: var(--muted); font-size: var(--t-small); }
+details.res { border-top: 1px solid var(--line); }
+details.res:last-of-type { border-bottom: 1px solid var(--line); }
+details.res summary { list-style: none; cursor: pointer; padding: 22px 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; font-weight: 600; font-size: 1.08rem; letter-spacing: -0.01em; }
+details.res summary::-webkit-details-marker { display: none; }
+details.res summary::after { content: "+"; font-family: var(--mono); font-weight: 400; font-size: 1.3rem; color: var(--muted); transition: transform 200ms ease; }
+details.res[open] summary::after { transform: rotate(45deg); }
+details.res .inner { padding-bottom: 28px; display: grid; gap: 14px; min-width: 0; }
+details.res .inner p, details.res .inner li { color: var(--muted); font-size: var(--t-small); }
+.msteps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 28px; }
+@media (max-width: 860px) { .msteps { grid-template-columns: minmax(0, 1fr); } }
+.msteps li { padding: 14px 0; border-top: 1px solid var(--line); display: grid; gap: 4px; }
+.msteps .no { font-family: var(--mono); color: var(--off); font-size: var(--t-tiny); }
+.msteps b { font-weight: 600; color: var(--ink); }
+.outputs { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.outputs li { display: flex; justify-content: space-between; gap: 12px; font-family: var(--mono); font-size: var(--t-tiny); border-bottom: 1px dashed var(--line); padding-block: 5px; min-width: 0; }
+.outputs li span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* footer */
+footer.site { position: relative; z-index: 2; background: #060f1a; color: #c9d6e2; padding-block: 72px 40px; overflow: hidden; }
+.foot { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 40px; }
+@media (max-width: 820px) { .foot { grid-template-columns: minmax(0, 1fr); } }
+.foot p, .foot li { color: #9db1c4; font-size: var(--t-small); }
+.foot b { color: #fff; font-weight: 600; }
+.foot ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.foot-brand { display: flex; align-items: center; gap: 12px; --mk-ink: #eaf1f7; --mk-cu: #ee8a63; --mk-bl: #5fa3cf; }
+.foot-brand svg { width: 52px; height: 52px; }
+.foot-brand b { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.045em; color: #fff; }
+.foot .tagl { font-family: var(--mono); font-size: var(--t-tiny); letter-spacing: 0.14em; text-transform: uppercase; color: #f0a07f; }
+.wordmark { font-weight: 700; letter-spacing: -0.07em; line-height: 0.85; font-size: clamp(4.2rem, 1rem + 15vw, 15rem); margin-top: 56px; background: linear-gradient(100deg, #5fa3cf 0%, #eaf1f7 35%, #ee8a63 70%, #5fa3cf 100%); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; user-select: none; }
+@media (prefers-reduced-motion: no-preference) { .wordmark { animation: sheen 12s ease-in-out infinite; } }
+.foot-bottom { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-top: 28px; padding-top: 18px; border-top: 1px solid rgb(255 255 255 / 0.08); font-size: var(--t-tiny); color: #7f93a6; }
+</style>
+<!--BODY-->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="synMark" viewBox="0 0 64 64"><mask id="synRings" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><circle cx="13" cy="32" r="5.2" fill="none" stroke="#000" stroke-width="2.4"/><circle cx="51" cy="32" r="5.2" fill="none" stroke="#000" stroke-width="2.4"/></mask><rect x="20" y="27.5" width="24" height="9" rx="4.5" style="fill:var(--mk-ink)"/><g mask="url(#synRings)"><polygon points="13,17 22.5,22.5 22.5,41.5 13,47 3.5,41.5 3.5,22.5" style="fill:var(--mk-cu)"/><polygon points="51,17 60.5,22.5 60.5,41.5 51,47 41.5,41.5 41.5,22.5" style="fill:var(--mk-bl)"/></g></symbol></defs></svg>
+
+<div class="progress" aria-hidden="true"><i id="prog"></i></div>
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="glcap" id="glcap" aria-hidden="true"><span id="glcapT">Fig. 0 · DNA, drawn in 6,000 particles</span></div>
+<header class="nav dark" id="nav">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="SynThera home">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><use href="#synMark"/></svg>
+      <b>SynThera</b>
+    </a>
+    <nav class="links" aria-label="Sections" id="links">
+      <a href="#how" data-for="how">How it works</a><a href="#signature" data-for="signature">Signature</a><a href="#findings" data-for="findings">Findings</a><a href="#candidates" data-for="candidates">Candidates</a><a href="#explore" data-for="explore">Explorer</a><a href="#evidence" data-for="evidence">Evidence</a><a href="#research" data-for="research">Researchers</a>
+    </nav>
+    <div class="navtools">
+      <button class="btn primary searchbtn" type="button" id="navSearch" aria-label="Search drugs"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.6"/><path d="m10.5 10.5 3.6 3.6"/></svg><span>Search</span></button>
+      <button class="iconbtn" type="button" id="themeBtn" aria-label="Switch colour theme"></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="story" id="story">
+    <section class="hero" id="top" data-sec="top">
+      <div class="wrap hero-in">
+        <div class="hero-copy">
+          <div class="eyebrow">Connecting molecular signatures to drug discovery</div>
+          <h1 id="heroTitle">Mimicking exercise through <span class="grad">molecular discovery.</span></h1>
+          <p class="sub">An AI search for medicines that do what a workout does.</p>
+          <p class="lead">Exercise protects against almost every long-term disease, yet many people cannot do it: after a spinal cord injury, with heart failure, in intensive care or with severe frailty. SynThera reads the <span class="term" tabindex="0" data-tip="The pattern of genes a workout switches on and off. Every drug has one too.">molecular fingerprint</span> of exercise in real people and searches <b id="leadN">29,680</b> compounds for drugs that reproduce it.</p>
+          <div class="cta">
+            <a class="btn primary mag" href="#candidates">Explore candidates <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+            <a class="btn ghost mag" href="#how"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M6.5 5.2v5.6L11 8 6.5 5.2Z" style="fill:var(--z-btn-fg)"/></svg>See how it works</a>
+          </div>
+        </div>
+        <div class="floaters" id="floaters" aria-hidden="true"></div>
+      </div>
+      <div class="wrap"><div class="hstats" id="hstats"></div></div>
+      <a class="scrollcue" href="#how" aria-label="Scroll to how it works"><i></i>Scroll</a>
+    </section>
+    <section id="how" data-sec="how" aria-label="How SynThera works">
+      <div id="panels"></div>
+    </section>
+    <div class="story-fade" aria-hidden="true"></div>
+  </div>
+
+  <section class="chapter alt" id="signature" data-sec="signature">
+    <div class="wrap">
+      <header class="chead rv"><span class="eyebrow">The exercise signature</span><h2 class="split">Scroll through one workout, gene by gene.</h2><p>Real thigh-muscle data from people who cycled for 40 minutes, minus people who rested. Keep scrolling and watch the response unfold over 24 hours.</p></header>
+      <div class="sigwrap">
+        <div class="sticky">
+          <figure class="chart-card" style="margin:0" aria-label="Differential gene expression after exercise">
+            <div class="cc-head"><div><h3>Differential gene expression</h3><p class="cc-sub">Exercise vs rested control · log2 fold change · vastus lateralis</p></div><span class="pill live">MoTrPAC data</span></div>
+            <div class="dge" id="dge"></div>
+            <div class="axis" aria-hidden="true"><span></span><span class="ticks" id="ticks"></span><span></span></div>
+            <div class="scrub" id="scrub" role="group" aria-label="Time after exercise"></div>
+            <div class="legend"><span><i style="background:var(--on)"></i>Switched on</span><span><i style="background:var(--off)"></i>Switched off</span></div>
+          </figure>
+        </div>
+        <div class="tsteps" id="tsteps"></div>
+      </div>
+      <div class="ex-grid">
+        <div class="card rv">
+          <h3>Genes changed, by tissue and time</h3>
+          <div style="overflow-x:auto"><table class="act" id="actTable"></table></div>
+          <p>Genes that changed with high confidence (<span class="term" tabindex="0" data-tip="False discovery rate: the expected share of false hits among the genes called significant. Below 5% here.">FDR</span> below 5%). Sparse fingerprints are too weak to search with and are marked weak in the explorer.</p>
+        </div>
+        <div class="card rv">
+          <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline"><h3>The genes behind the benefits</h3><span class="legend"><span class="mods"><i style="background:var(--endur)"></i>cycling</span><span class="mods"><i style="background:var(--resist)"></i>weights</span></span></div>
+          <div class="genes" id="genes"></div>
+          <p>Change in muscle before, early after, 3.5 hours and 24 hours after the session. Filled dots are high-confidence changes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter" id="findings" data-sec="findings">
+    <div class="wrap">
+      <header class="chead rv"><span class="eyebrow">Findings</span><h2 class="split">Five things the data showed us.</h2><p>Each result is computed from the full screen of 29,680 compounds and checked against controls further down the page.</p></header>
+      <div class="bento" id="bento"></div>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true"><div class="mq-track" id="mq"></div></div>
+
+  <section class="chapter alt" id="candidates" data-sec="candidates">
+    <div class="wrap">
+      <div class="cand-head">
+        <header class="chead rv" style="margin:0"><span class="eyebrow">Candidates</span><h2 class="split">Approved drugs that copy exercise's good side.</h2><p id="candIntro"></p></header>
+        <div class="tabs full" role="tablist" aria-label="Type of exercise" id="candTabs"></div>
+      </div>
+      <div class="cards" id="cards"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:26px"><button class="btn" id="allBtn" type="button" aria-expanded="false">Show all candidates</button></div>
+      <ol class="alllist" id="allList" hidden></ol>
+    </div>
+  </section>
+
+  <section class="chapter" id="explore" data-sec="explore">
+    <div class="wrap">
+      <header class="chead rv"><span class="eyebrow">Explorer</span><h2 class="split">Look up any drug.</h2><p>Choose cycling or weights, then a tissue and a time after the workout. Each choice is one fingerprint. Striped cells have too little signal to rank drugs reliably. Press <kbd>/</kbd> anywhere to search.</p></header>
+      <div class="explorer">
+        <aside class="rail" aria-label="Choose a fingerprint">
+          <div class="tabs" role="group" aria-label="Type of exercise" id="modSeg"></div>
+          <div class="matrix" id="matrix"></div>
+          <div class="sigcard" id="sigcard"></div>
+        </aside>
+        <div class="readout">
+          <div class="toolbar">
+            <label class="search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.6"/><path d="m10.5 10.5 3.6 3.6"/></svg><input type="search" id="q" placeholder="Search a drug, what it treats, or its target" aria-label="Search drugs"></label>
+            <label class="check"><input type="checkbox" id="approved" checked> Approved only</label>
+            <select id="sort" aria-label="Sort by"><option value="rank">Best match to exercise</option><option value="ben">Best good-vs-stress balance</option><option value="inv">Most opposite to exercise</option></select>
+          </div>
+          <div class="count" id="count"></div>
+          <div class="tablewrap"><table class="rank"><thead><tr><th>#</th><th>Drug</th><th>Match</th><th title="Teal: copies exercise's adaptations more than its stress. Amber: the reverse.">Good vs stress</th><th class="hide-sm">Confidence</th><th class="hide-sm">Cell types</th></tr></thead><tbody id="tbody"></tbody></table></div>
+          <button class="btn more" id="more" type="button">Show 30 more</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter alt" id="evidence" data-sec="evidence">
+    <div class="wrap">
+      <header class="chead rv"><span class="eyebrow">Evidence</span><h2 class="split">How sure are we?</h2><p>A result is only useful if the method behaves sensibly on things we already know. These are the checks, including the ones that came out mixed.</p></header>
+      <div class="ev">
+        <div class="card rv"><h3>Known exercise-like drugs</h3><span class="pill warn verdict">Mixed</span><div class="legend" id="ctrlLegend"></div><div class="chart" id="ctrlChart"></div><p id="ctrlText"></p></div>
+        <div class="card rv"><h3>A drug that should oppose weight training does</h3><span class="pill ok verdict">Passed</span><div class="chart small" id="negChart"></div><p id="negText"></p></div>
+        <div class="card rv"><h3>Random gene lists do not fool it</h3><span class="pill ok verdict">Passed, with a caveat</span><div class="chart" id="permChart"></div><p id="permText"></p></div>
+        <div class="card rv"><h3>The list holds up when data is noisy</h3><span class="pill ok verdict">Passed</span><div class="chart" id="bootChart"></div><p id="bootText"></p></div>
+        <div class="card rv" style="grid-column:1/-1"><h3>Every matching method pulls its weight</h3><div class="ev" style="gap:22px"><div style="overflow-x:auto"><table class="plain" id="ablTable"></table></div><p id="ablText" style="font-size:var(--t-small);color:var(--muted)"></p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter" id="map" data-sec="evidence">
+    <div class="wrap">
+      <header class="chead rv"><span class="eyebrow">Drug map</span><h2 class="split">A map of <span id="mapN">29,680</span> compounds.</h2><p>Each dot is a compound, placed by what its genes do according to the <span class="term" tabindex="0" data-tip="GSFM: a Gene Set Foundation Model from the Ma'ayan Lab, trained on over a million gene sets, that understands which genes work together.">GSFM AI model</span>, so drugs that act alike sit together. Colour shows how well each one matches the fingerprint picked in the explorer; diamonds are the exercise fingerprints themselves. Hover for names, click to look one up.</p></header>
+      <div class="mapgrid">
+        <div class="canvasbox rv"><canvas id="mapCanvas" height="520" aria-label="Map of compounds"></canvas><div class="tip" id="mapTip" hidden></div></div>
+        <div class="card" id="mapSide"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter alt" id="rat" data-sec="evidence">
+    <div class="wrap">
+      <header class="chead rv"><span class="eyebrow">Why human data</span><h2 class="split">Rats and people point to different drugs.</h2><p>Earlier searches, including a 2026 Bio-IT World hackathon project built on the same AI model, started from rat exercise data translated into human genes. We ran SynThera's identical pipeline on the MoTrPAC rat data to see whether the starting species matters.</p></header>
+      <div id="ratBody"></div>
+    </div>
+  </section>
+
+  <section class="chapter" id="limits" data-sec="evidence">
+    <div class="wrap">
+      <header class="chead rv"><span class="eyebrow">Limits</span><h2 class="split">What this cannot tell you yet.</h2></header>
+      <ul class="limits" id="limitsList"></ul>
+    </div>
+  </section>
+
+  <section class="chapter alt" id="research" data-sec="research">
+    <div class="wrap">
+      <header class="chead rv"><span class="eyebrow">For researchers</span><h2 class="split">Methods, data and outputs.</h2><p>Technical detail behind every number on this page.</p></header>
+      <details class="res"><summary>Method, step by step</summary><div class="inner"><ol class="msteps" id="msteps"></ol></div></details>
+      <details class="res"><summary>Every measured gene in muscle (volcano plot)</summary><div class="inner"><div class="tabs" role="group" aria-label="Exercise type" id="volSeg"></div><div class="canvasbox"><canvas id="volcano" height="300" aria-label="Volcano plot"></canvas></div><p id="volText"></p></div></details>
+      <details class="res"><summary>Agreement between methods and between fingerprints</summary><div class="inner"><div style="overflow-x:auto" id="methodMat"></div><p>Spearman correlation between the four scores across all compounds, averaged over strong fingerprints.</p><div class="chart small" id="sigMat"></div><p id="sigMatText"></p></div></details>
+      <details class="res"><summary>Data sources and licences</summary><div class="inner"><table class="plain" id="datatab"></table></div></details>
+      <details class="res"><summary>FAIR outputs and reproducibility</summary><div class="inner"><p>Machine-readable results ship with the code. The JSON-LD file uses schema.org and Bioschemas types: provenance for every input, the CC BY 4.0 licence, variable definitions, ranked compounds with InChIKeys and Broad IDs, and query genes with NCBI Gene IDs.</p><ul class="outputs" id="outputs"></ul><ul id="repro" style="padding-left:18px;display:grid;gap:6px;margin:0"></ul></div></details>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="foot">
+      <div style="display:grid;gap:14px;align-content:start">
+        <div class="foot-brand"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#synMark"/></svg><b>SynThera</b></div>
+        <span class="tagl">Mimicking exercise through molecular discovery</span>
+        <p style="max-width:52ch">A research prototype that generates hypotheses for laboratory testing. Nothing on this page is medical advice or a treatment recommendation.</p>
+        <p id="generated"></p>
+      </div>
+      <div style="display:grid;gap:14px;align-content:start">
+        <p><b>Team TEJAS019</b> · SASTRA Deemed University · TEJAS 2026 AI Innovation Challenge (Temenos CSR × SASTRA) · SDG 9</p>
+        <ul><li>Jahnavi Sai G (lead)</li><li>Prince Kumar</li><li>Apurva V</li><li>Priyanka G</li><li>Vishnupriya K</li></ul>
+      </div>
+    </div>
+    <div class="wordmark" aria-hidden="true">SynThera</div>
+    <div class="foot-bottom"><span>Connecting molecular signatures to drug discovery</span><span>Data: MoTrPAC (CC BY 4.0) · CMap LINCS 2020 · Drug Repurposing Hub · MSigDB / Reactome · GSFM, Ma'ayan Lab</span></div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset","name":"SynThera: human-signature exercise-mimetic drug rankings","description":"Rankings of LINCS L1000 compounds by similarity to human acute-exercise transcriptomic signatures from MoTrPAC, with four connectivity methods including the GSFM gene-set foundation model.","license":"https://creativecommons.org/licenses/by/4.0/","keywords":["exercise mimetics","drug repurposing","connectivity map","MoTrPAC","LINCS L1000","GSFM"],"creator":{"@type":"Organization","name":"Team TEJAS019, SASTRA Deemed University"}}</script>
+<script>
+const DATA = /*__DATA__*/null;
+(function () {
+  "use strict";
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const fmt = (n) => Number(n).toLocaleString("en-US");
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const fine = matchMedia("(pointer: fine)").matches;
+  const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+  const G = window.gsap, ST = window.ScrollTrigger, SPLIT = window.SplitText, LENIS = window.Lenis, THREE = window.THREE;
+  const anim = !!G && !reduced;
+  if (G && ST) G.registerPlugin(ST);
+  if (G && SPLIT) { try { G.registerPlugin(SPLIT); } catch {} }
+  const A = (el, kf, opt) => (el && el.animate ? el.animate(kf, opt) : null);
+  const EASE = "cubic-bezier(.2,.75,.2,1)";
+  if (!DATA) { $("main").innerHTML = '<div class="wrap empty">No results embedded. Run pipeline/09_export_website.py.</div>'; return; }
+
+  const N = DATA.meta.n_compounds;
+  const TISSUES = ["muscle", "blood", "adipose"], TIMES = ["early", "3.5-4h", "24h"];
+  const TLAB = { muscle: "Muscle", blood: "Blood", adipose: "Fat" }, MLAB = { endurance: "Cycling", resistance: "Weights" };
+  const MLONG = { endurance: "Cycling (endurance)", resistance: "Weight training (resistance)" }, TPLAB = { early: "Early", "3.5-4h": "3.5 h", "24h": "24 h" };
+  const METH = ["Classic CMap match", "Rank correlation", "Extreme genes", "AI model (GSFM)"];
+  const sigById = Object.fromEntries(DATA.sigs.map((s) => [s.id, s]));
+  const sid = (t, m, p) => `${t}|${m}|${p}`;
+  const pct = (rank) => (rank / N) * 100;
+  const pctTxt = (p) => (p < 1 ? p.toFixed(2) : p < 10 ? p.toFixed(1) : p.toFixed(0));
+  const topPct = (rank) => pctTxt(pct(rank));
+  const heat = (rank) => Math.max(0, Math.min(100, 100 - pct(rank) * 2));
+  const isApproved = (d) => d.phase === "Launched";
+  const plab = (l) => String(l).replace("3.5-4h", "3.5–4 h").replace(/^24h$/, "24 h");
+  const sigName = (s) => `${MLAB[s.modality]} · ${TLAB[s.tissue]} · ${plab(s.label)}`;
+  const state = { modality: store.get("syn.mod") === "resistance" ? "resistance" : "endurance", tissue: "muscle", time: "3.5-4h", q: "", approved: true, sort: "rank", shown: 30, open: null };
+  ["#leadN", "#mapN"].forEach((s) => { $(s).textContent = fmt(N); });
+  const CD = DATA.candidates; const nC = (m) => CD[m].filter((c) => c.c != null).length;
+
+  const I = {
+    people: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.5"/><path d="M15.8 13.6c2.3.1 3.9 1.6 4.4 4.4"/></svg>',
+    layers: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 7.5 12 12l9-4.5L12 3Z"/><path d="m3 12 9 4.5 9-4.5"/><path d="m3 16.5 9 4.5 9-4.5"/></svg>',
+    capsule: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8" width="19" height="8" rx="4" transform="rotate(-35 12 12)"/><path d="m9.6 8.5 4.8 7"/></svg>',
+    shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5.5c0 4.3 3 7.7 7 9.5 4-1.8 7-5.2 7-9.5V6l-7-3Z"/><path d="m8.8 12 2.2 2.2 4.4-4.6"/></svg>',
+    mol: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14 28 9.5l8 4.5v9l-8 4.5-8-4.5v-9Z"/><path d="M20 23 13 27v7M36 23l5 3M28 27.5V35l-6 3.5M13 34l-5 3"/><circle cx="41.5" cy="26.5" r="1.6" fill="currentColor"/><circle cx="22" cy="38.5" r="1.6" fill="currentColor"/></svg>',
+    clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+    cells: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="8" cy="9" r="4.5"/><circle cx="16" cy="15" r="4.5"/><circle cx="8" cy="9" r="1.2" fill="currentColor"/><circle cx="16" cy="15" r="1.2" fill="currentColor"/></svg>',
+    signal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 18v-2M9 18v-5M14 18v-8M19 18V6"/></svg>',
+    flask: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M7.5 15h9"/></svg>',
+    sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>',
+    moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></svg>',
+  };
+
+  // ---------- theme, smooth scroll, search ----------
+  const root = document.documentElement;
+  const isDark = () => root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  const savedTheme = store.get("syn.theme"); if (savedTheme === "dark" || savedTheme === "light") root.dataset.theme = savedTheme;
+  function themeIcon() { $("#themeBtn").innerHTML = isDark() ? I.sun : I.moon; $("#themeBtn").setAttribute("aria-label", isDark() ? "Switch to light theme" : "Switch to dark theme"); }
+  $("#themeBtn").addEventListener("click", () => { root.dataset.theme = isDark() ? "light" : "dark"; store.set("syn.theme", root.dataset.theme); themeIcon(); });
+  themeIcon();
+  let lenis = null;
+  if (LENIS && anim && fine) {
+    try { lenis = new LENIS({ lerp: 0.13, smoothWheel: true, wheelMultiplier: 1.05 }); if (ST) lenis.on("scroll", ST.update); G.ticker.add((t) => lenis.raf(t * 1000)); G.ticker.lagSmoothing(0); } catch { lenis = null; }
+  }
+  function goTo(target) {
+    const el = typeof target === "string" ? $(target) : target; if (!el) return;
+    if (lenis) lenis.scrollTo(el, { offset: -72, duration: 1.5 }); else el.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+  }
+  document.addEventListener("click", (e) => { const a = e.target.closest('a[href^="#"]'); if (!a) return; const h = a.getAttribute("href"); if (h.length < 2) return; const t = $(h); if (!t) return; e.preventDefault(); goTo(t); try { history.replaceState(null, "", h); } catch {} });
+  function focusSearch() { goTo("#explore"); setTimeout(() => $("#q").focus({ preventScroll: true }), lenis ? 1600 : 450); }
+  $("#navSearch").addEventListener("click", focusSearch);
+  document.addEventListener("keydown", (e) => { const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || ""); if ((e.key === "/" && !typing) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k")) { e.preventDefault(); focusSearch(); } });
+
+  // ---------- hero ----------
+  const H = DATA.hero;
+  const fold = (v) => Math.pow(2, Math.abs(v));
+  const foldTxt = (v) => { const f = fold(v); return f < 10 ? f.toFixed(1) : f.toFixed(0); };
+  const floatGenes = [0, 1, 6, 9, 2].filter((i) => i < H.genes.length);
+  const fpos = [[8, 10], [60, 3], [72, 44], [6, 66], [50, 80]];
+  $("#floaters").innerHTML = floatGenes.map((gi, k) => { const v = H.lfc["3.5-4h"][gi] || 0; return `<span class="chipf ${v >= 0 ? "up" : "dn"}" style="left:${fpos[k][0]}%;top:${fpos[k][1]}%;animation-delay:${-k * 1.2}s"><i style="background:${v >= 0 ? "var(--z-on)" : "var(--z-off)"}"></i>${esc(H.genes[gi])} <b>${v >= 0 ? "▲" : "▼"} ${foldTxt(v)}×</b></span>`; }).join("") + `<span class="chipf cap" style="left:8%;top:94%">MUSCLE · 3.5 H AFTER CYCLING · FOLD CHANGE</span>`;
+  const hst = [[I.people, "", 175, "adults, with a rested control group"], [I.layers, "", 18, "exercise fingerprints"], [I.capsule, "c", N, "compounds screened"], [I.shield, "", DATA.meta.n_launched, "approved drugs among them"]];
+  $("#hstats").innerHTML = hst.map(([ic, c, v, l]) => `<div class="hstat"><span class="ic ${c}">${ic}</span><div><b data-count="${v}">${fmt(v)}</b><span>${l}</span></div></div>`).join("");
+
+  // ---------- story panels ----------
+  const panels = [
+    ["01", "Read the exercise fingerprint", "MoTrPAC sampled muscle, blood and fat from 175 inactive adults before and after one session of cycling or weights, and from a group who rested. Subtracting the rested group leaves only what exercise changed: its fingerprint.", [["175 adults", ""], ["3 tissues × 3 times", ""], ["18 fingerprints", "on"]], "Fig. 1 · the fingerprint: copper genes switched on, blue switched off"],
+    ["02", "Profile every compound", "The LINCS library records which genes each compound switches on and off in human cells. Each drug's lab profiles are merged into one fingerprint of its own.", [[`${fmt(N)} compounds`, "on"], ["720,216 lab profiles", "b"]], "Fig. 2 · every drug carries a fingerprint too"],
+    ["03", "Match with four methods, one of them AI", "Classic CMap matching, rank correlation and extreme genes, plus GSFM, a foundation model trained on over a million gene sets that knows which genes work together. Each drug is judged against its own random baseline, then the four votes are combined.", [["CMap", ""], ["Spearman", ""], ["XSum", ""], ["GSFM AI", "on"]], "Fig. 3 · genes that work together, as the AI model sees them"],
+    ["04", "Keep the good, drop the stress", "A hard workout brings stress and inflammation, then useful adaptations: new mitochondria, fat burning, new blood vessels. SynThera scores how much each drug copies the adaptations rather than the stress.", [["701 adaptive genes", "g"], ["872 stress genes", "w"]], "Fig. 4 · teal: adaptation genes · amber: stress genes"],
+    ["05", "A shortlist of approved drugs", "Approved drugs in the top 5% of matches, ranked by benefit. Cell-killing drugs and thin lab evidence are set aside. What is left is a shortlist for laboratory testing.", [[`${nC("endurance")} for cycling`, "on"], [`${nC("resistance")} for weights`, "on"]], "Fig. 5 · thousands of compounds in, a short list out"],
+  ];
+  const CAPS = ["Fig. 0 · DNA, drawn in particles", ...panels.map((p) => p[4])];
+  $("#panels").innerHTML = panels.map(([no, t, p, chips], i) => `<article class="panel" data-stage="${i + 1}"><div class="wrap"><div class="pcard"><div class="stepno"><b>${no}</b><span>OF 05</span></div><h2>${t}</h2><p>${p}</p><div class="zchips">${chips.map(([c, k]) => `<span class="zchip ${k}">${c}</span>`).join("")}</div><div class="stagebar">${[0, 1, 2, 3, 4].map((k) => `<i class="${k <= i ? "done" : ""}"></i>`).join("")}</div></div></div></article>`).join("");
+  const panelEls = $$("#panels .panel");
+
+  // ---------- WebGL particle sculpture ----------
+  const gl = { ok: false, stage: 0, target: 0, visible: true, mx: 0, my: 0, start: null };
+  (function particles() {
+    const cv = $("#gl");
+    if (!THREE) { cv.classList.add("off"); return; }
+    let renderer;
+    try { renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: false, alpha: true, powerPreference: "high-performance" }); } catch { cv.classList.add("off"); return; }
+    const mobile = innerWidth < 900;
+    const NP = mobile ? 2800 : 6400;
+    $("#glcapT").textContent = `Fig. 0 · DNA, drawn in ${fmt(NP)} particles`; CAPS[0] = $("#glcapT").textContent;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.1, 100);
+    camera.position.set(0, 0, 9.5);
+    let seed = 7; const R = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const gauss = () => { const u = Math.max(1e-6, R()), v = R(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(6.2832 * v); };
+    const S = Array.from({ length: 6 }, () => new Float32Array(NP * 3)), grp = new Float32Array(NP), rnd = new Float32Array(NP);
+    const set = (k, i, x, y, z) => { S[k][i * 3] = x; S[k][i * 3 + 1] = y; S[k][i * 3 + 2] = z; };
+    const rotZ = (x, y, a) => [x * Math.cos(a) - y * Math.sin(a), x * Math.sin(a) + y * Math.cos(a)];
+    const sph = () => { const a = gauss(), b = gauss(), c = gauss(); const n = Math.hypot(a, b, c) || 1; return [a / n, b / n, c / n]; };
+    // gene-network scaffold (stage 3): 16 hubs on a sphere, each linked to its 2 nearest neighbours
+    const C = 16, cen = [];
+    for (let j = 0; j < C; j++) { const y = 1 - (j + 0.5) * 2 / C, r = Math.sqrt(1 - y * y), th = j * 2.39996; cen.push([Math.cos(th) * r * 2.0, y * 2.0, Math.sin(th) * r * 2.0]); }
+    const edges = [];
+    cen.forEach((a, i) => { cen.map((b, j) => [j, (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2]).filter(([j]) => j !== i).sort((p, q) => p[1] - q[1]).slice(0, 3).forEach(([j]) => { if (!edges.some(([p, q]) => (p === i && q === j) || (p === j && q === i))) edges.push([i, j]); }); });
+    const SL = [[-1.9, 0.55], [-1.15, -0.25], [-0.4, 0.5], [0.35, -0.3], [1.1, 0.45], [1.85, -0.2]];
+    for (let i = 0; i < NP; i++) {
+      const g = i < NP / 2 ? 0 : 1; grp[i] = g; rnd[i] = R();
+      // 0: double helix with base-pair rungs
+      if (R() < 0.22) { const j = Math.floor(R() * 24), yy = (j + 0.5) / 24 * 5.4 - 2.7, th = yy * 1.62 + (g ? Math.PI : 0), t = R() * 0.5, rr = 0.95 * (1 - t * 2); set(0, i, Math.cos(th) * rr, yy + gauss() * 0.015, Math.sin(th) * rr); }
+      else { const y = (R() - 0.5) * 5.4, th = y * 1.62 + (g ? Math.PI : 0); set(0, i, Math.cos(th) * 0.95 + gauss() * 0.035, y, Math.sin(th) * 0.95 + gauss() * 0.035); }
+      // 1: fingerprint whorl; alternating ridges are switched-on (copper) and switched-off (blue) genes
+      { const u = Math.sqrt(R()) * 7.5, th = (u % 1) * 6.2832, r = 0.14 + 0.27 * (u + g * 0.5);
+        set(1, i, Math.cos(th) * r * 0.84 + gauss() * 0.008, Math.sin(th) * r * 1.06 + gauss() * 0.008, gauss() * 0.02); }
+      // 2: two-tone capsule
+      { const Rr = 0.78, L = 1.15, cylA = 2 * Math.PI * Rr * 2 * L, capA = 4 * Math.PI * Rr * Rr; let x, y, z;
+        if (R() < cylA / (cylA + capA)) { const th = R() * 6.2832; y = g ? R() * L : -R() * L; x = Math.cos(th) * Rr; z = Math.sin(th) * Rr; }
+        else { let [a, b, c] = sph(); if ((b > 0) !== (g === 1)) b = -b; x = a * Rr; z = c * Rr; y = b * Rr + (g ? L : -L); }
+        const [xx, yy] = rotZ(x, y, -0.72); set(2, i, xx * 1.15, yy * 1.15, z * 1.15); }
+      // 3: gene network
+      if (R() < 0.58) { let j = Math.floor(R() * C); if (j % 2 !== g) j = (j + 1) % C; const c = cen[j]; set(3, i, c[0] + gauss() * 0.13, c[1] + gauss() * 0.13, c[2] + gauss() * 0.13); }
+      else { const e = edges[Math.floor(R() * edges.length)], a = cen[e[0]], b = cen[e[1]], t = R(); set(3, i, a[0] + (b[0] - a[0]) * t + gauss() * 0.025, a[1] + (b[1] - a[1]) * t + gauss() * 0.025, a[2] + (b[2] - a[2]) * t + gauss() * 0.025); }
+      // 4: adaptation cloud (teal, large) vs stress cloud (amber, small)
+      { const [a, b, c] = sph(), r = Math.cbrt(R()); if (g === 0) set(4, i, -0.85 + a * r * 1.05, 0.3 + b * r * 1.05, c * r * 1.05); else set(4, i, 1.45 + a * r * 0.55, -0.8 + b * r * 0.55, c * r * 0.55); }
+      // 5: shortlist: six bright candidate clusters; everything else drifts out to a faint halo
+      if (g === 1) { const s = SL[Math.floor(R() * SL.length)], [a, b, c] = sph(), r = Math.cbrt(R()) * 0.26; set(5, i, s[0] + a * r, s[1] + b * r, c * r); }
+      else { const [a, b, c] = sph(), r = 3.0 + R() * 1.6; set(5, i, a * r, b * r * 0.7, c * r - 1.6); }
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(S[0], 3));
+    S.forEach((arr, k) => geo.setAttribute("p" + k, new THREE.BufferAttribute(arr, 3)));
+    geo.setAttribute("aGroup", new THREE.BufferAttribute(grp, 1)); geo.setAttribute("aRand", new THREE.BufferAttribute(rnd, 1));
+    const col = (h) => new THREE.Color(h);
+    const PAL = {
+      dark: { cA: ["#5fa3cf", "#5fa3cf", "#a9c6df", "#5fa3cf", "#4fc1af", "#5fa3cf"], cB: ["#ee8a63", "#ee8a63", "#ee8a63", "#ee8a63", "#e7b04b", "#ffb48c"], aA: [1, 1, 0.9, 1, 1, 0.22], aB: [1, 1, 1, 1, 0.8, 1], line: 0x8fb9d8 },
+      light: { cA: ["#2d6485", "#2d6485", "#7f9fb8", "#2d6485", "#2e8c7e", "#7f9fb8"], cB: ["#c2603f", "#c2603f", "#c2603f", "#c2603f", "#b7791f", "#c2603f"], aA: [0.8, 0.8, 0.7, 0.8, 0.8, 0.16], aB: [0.8, 0.8, 0.85, 0.8, 0.75, 0.95], line: 0x2d6485 },
+    };
+    const cA = PAL.dark.cA.map(col), cB = PAL.dark.cB.map(col), aA = PAL.dark.aA.slice(), aB = PAL.dark.aB.slice();
+    const mat = new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      uniforms: { uStage: { value: 0 }, uTime: { value: 0 }, uSize: { value: mobile ? 34 : 30 }, uPR: { value: renderer.getPixelRatio() }, uDim: { value: mobile ? 0.5 : 1 }, uLight: { value: 0 }, cA: { value: cA }, cB: { value: cB }, aA: { value: aA }, aB: { value: aB } },
+      vertexShader: `
+        attribute vec3 p0; attribute vec3 p1; attribute vec3 p2; attribute vec3 p3; attribute vec3 p4; attribute vec3 p5;
+        attribute float aGroup; attribute float aRand;
+        uniform float uStage; uniform float uTime; uniform float uSize; uniform float uPR;
+        uniform vec3 cA[6]; uniform vec3 cB[6]; uniform float aA[6]; uniform float aB[6];
+        varying vec3 vColor; varying float vAlpha;
+        vec3 shp(int k) { if (k == 0) return p0; if (k == 1) return p1; if (k == 2) return p2; if (k == 3) return p3; if (k == 4) return p4; return p5; }
+        void main() {
+          float s = clamp(uStage, 0.0, 5.0); int i0 = int(min(floor(s), 4.0)); int i1 = i0 + 1; float f = s - float(i0);
+          float d = aRand * 0.4; float t = smoothstep(d, d + 0.6, f);
+          vec3 a = shp(i0); vec3 b = shp(i1);
+          vec3 mid = (a + b) * 0.5 + normalize(a - b + vec3(0.0001, 0.0002, 0.0003)).yzx * 0.6 * (aRand - 0.5);
+          vec3 pos = mix(mix(a, mid, t), mix(mid, b, t), t);
+          pos += 0.012 * vec3(sin(uTime * 0.9 + aRand * 40.0), cos(uTime * 0.8 + aRand * 30.0), sin(uTime * 0.7 + aRand * 20.0));
+          vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+          gl_Position = projectionMatrix * mv;
+          float tw = 0.78 + 0.22 * sin(uTime * 2.0 + aRand * 50.0);
+          gl_PointSize = uSize * uPR * (0.45 + aRand * 0.85) * tw / -mv.z;
+          vColor = mix(mix(cA[i0], cB[i0], aGroup), mix(cA[i1], cB[i1], aGroup), t);
+          vAlpha = mix(mix(aA[i0], aB[i0], aGroup), mix(aA[i1], aB[i1], aGroup), t);
+        }`,
+      fragmentShader: `
+        uniform float uDim; uniform float uLight; varying vec3 vColor; varying float vAlpha;
+        void main() {
+          vec2 c = gl_PointCoord - 0.5; float d = length(c); if (d > 0.5) discard;
+          float core = smoothstep(0.5, 0.0, d);
+          vec3 col = mix(vColor * (0.55 + core), vColor, uLight);
+          float a = mix(core * core * 0.9, smoothstep(0.5, 0.2, d) * 0.85, uLight);
+          gl_FragColor = vec4(col, a * vAlpha * uDim);
+        }`,
+    });
+    const pts = new THREE.Points(geo, mat); pts.frustumCulled = false;
+    const holder = new THREE.Group(); holder.add(pts); scene.add(holder);
+    const lp = new Float32Array(edges.length * 6); edges.forEach(([a, b], k) => { lp.set(cen[a], k * 6); lp.set(cen[b], k * 6 + 3); });
+    const lgeo = new THREE.BufferGeometry(); lgeo.setAttribute("position", new THREE.BufferAttribute(lp, 3));
+    const lmat = new THREE.LineBasicMaterial({ color: 0x8fb9d8, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+    holder.add(new THREE.LineSegments(lgeo, lmat));
+    let light = false, narrow = innerWidth < 980;
+    gl.theme = (isLight) => {
+      light = isLight; const P = isLight ? PAL.light : PAL.dark;
+      P.cA.forEach((h, k) => cA[k].set(h)); P.cB.forEach((h, k) => cB[k].set(h)); P.aA.forEach((v, k) => { aA[k] = v; }); P.aB.forEach((v, k) => { aB[k] = v; });
+      mat.blending = lmat.blending = isLight ? THREE.NormalBlending : THREE.AdditiveBlending;
+      mat.uniforms.uLight.value = isLight ? 1 : 0; mat.uniforms.uSize.value = (mobile ? 34 : 30) * (isLight ? 0.85 : 1);
+      lmat.color.setHex(P.line); mat.needsUpdate = true; lmat.needsUpdate = true;
+      if (gl.start) gl.start();
+    };
+    gl.theme(!isDark());
+    gl.ok = true;
+    function layout() {
+      renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+      const m = innerWidth < 980; narrow = m; holder.position.set(m ? 0 : 2.3, m ? 1.75 : 0, 0); holder.scale.setScalar(m ? 0.62 : 1);
+      mat.uniforms.uPR.value = renderer.getPixelRatio();
+    }
+    layout(); addEventListener("resize", layout);
+    if (fine) addEventListener("pointermove", (e) => { gl.mx = e.clientX / innerWidth - 0.5; gl.my = e.clientY / innerHeight - 0.5; }, { passive: true });
+    const clock = new THREE.Clock(); let rx = 0, ry = 0, spin = 0, last = 0, raf = 0;
+    function frame() {
+      const t = reduced ? 0 : clock.getElapsedTime(); const raw = t - last; const dt = Math.min(0.05, raw); last = t;
+      gl.stage += (gl.target - gl.stage) * (reduced ? 1 : 1 - Math.exp(-Math.min(0.25, raw) * 4.5));
+      const w0 = 1 - Math.min(1, gl.stage);
+      spin += dt * 0.35 * w0;
+      const wrapped = Math.atan2(Math.sin(spin), Math.cos(spin));
+      mat.uniforms.uStage.value = gl.stage; mat.uniforms.uTime.value = t;
+      // on narrow screens the helix sits behind the headline, so keep it a faint watermark until the story starts
+      mat.uniforms.uDim.value = (narrow ? (0.22 + 0.78 * Math.min(1, gl.stage)) * (light ? 0.75 : 0.8) : 1) * (reduced ? 1 : Math.min(1, t / 1.8));
+      lmat.opacity = Math.max(0, 1 - Math.abs(gl.stage - 3)) * (light ? 0.4 : 0.3);
+      ry += (wrapped * w0 + (reduced ? 0 : Math.sin(t * 0.21) * 0.35) * (1 - w0) + gl.mx * 0.5 - ry) * 0.06;
+      rx += ((reduced ? 0 : Math.sin(t * 0.16) * 0.08) + gl.my * 0.3 - rx) * 0.06;
+      holder.rotation.set(rx, ry, -0.32 * w0);
+      renderer.render(scene, camera);
+      raf = gl.visible && !document.hidden ? requestAnimationFrame(frame) : 0;
+    }
+    gl.start = () => { if (!raf) raf = requestAnimationFrame(frame); };
+    gl.start();
+    document.addEventListener("visibilitychange", () => { if (!document.hidden && gl.visible) gl.start(); });
+  })();
+  let capK = -1, glO = -1;
+  const storyEl = $("#story"), glEl = $("#gl"), capEl = $("#glcap"), capT = $("#glcapT");
+  function storyProgress(vh, r, tops) {
+    let s = 0;
+    tops.forEach((top) => { s += Math.max(0, Math.min(1, (vh * 0.8 - top) / (vh * 0.6))); });
+    gl.target = s;
+    const vis = r.bottom > 0;
+    if (vis !== gl.visible) { gl.visible = vis; if (vis && gl.start) gl.start(); }
+    // the sculpture dims as the fade band rises, so the hand-off to the page is gradual
+    const o = Math.round(Math.max(0, Math.min(1, (r.bottom - vh * 0.25) / (vh * 0.7))) * 50) / 50;
+    if (o !== glO) { glO = o; glEl.style.opacity = o; }
+    capEl.classList.toggle("off", !gl.ok || r.bottom < vh * 1.15);
+    const k = Math.round(s); if (k !== capK) { capK = k; capT.textContent = CAPS[k]; }
+  }
+
+  // ---------- signature scrollytelling ----------
+  const LIM = Math.ceil(Math.max(1, ...Object.values(H.lfc).flat().map((v) => Math.abs(v || 0))));
+  $("#dge").innerHTML = H.genes.map((g) => `<div class="dge-row"><span class="g" title="${esc(g)}">${esc(g)}</span><span class="track"><i class="neg"></i><i class="pos"></i></span><span class="v">0.0</span></div>`).join("");
+  $("#ticks").innerHTML = [-LIM, -LIM / 2, 0, LIM / 2, LIM].map((v) => `<span style="left:${(v + LIM) / (2 * LIM) * 100}%">${v > 0 ? "+" : ""}${Number.isInteger(v) ? v : v.toFixed(1)}</span>`).join("");
+  const steps = [["Before", null], ["Early", "early"], ["3.5 h", "3.5-4h"], ["24 h", "24h"]];
+  $("#scrub").innerHTML = steps.map(([l], k) => `<button type="button" data-k="${k}" aria-pressed="false">${l}</button>`).join("");
+  function fpShow(k) {
+    const key = steps[k][1];
+    $$("#dge .dge-row").forEach((row, i) => { const v = key ? (H.lfc[key][i] || 0) : 0; const s = Math.min(1, Math.abs(v) / LIM); row.querySelector(".pos").style.transform = `scaleX(${v > 0 ? s : 0})`; row.querySelector(".neg").style.transform = `scaleX(${v < 0 ? s : 0})`; row.querySelector(".v").textContent = (v > 0 ? "+" : "") + v.toFixed(1); });
+    $$("#scrub button").forEach((b, i) => b.setAttribute("aria-pressed", String(i === k)));
+    $$("#tsteps .tstep").forEach((t, i) => t.classList.toggle("on", i === k));
+  }
+  const mE = (p) => sigById[sid("muscle", "endurance", p)];
+  const nch = (p) => mE(p).n_up + mE(p).n_down;
+  const gi = (g) => H.genes.indexOf(g);
+  const pg = gi("PPARGC1A"), pk = gi("PRKAG2");
+  const peakTxt = pg >= 0 ? `PGC-1α, the master switch for building new mitochondria, rises about ${foldTxt(H.lfc["3.5-4h"][pg])}-fold${pk >= 0 ? `, and PRKAG2, part of the cell's energy sensor AMPK, about ${foldTxt(H.lfc["3.5-4h"][pk])}-fold` : ""}.` : "The energy programme switches on.";
+  const tsteps = [
+    ["Before", "A shared baseline", "Everyone is measured at rest. The rested group's own drift is subtracted from the exercisers', so every bar starts at zero.", 0],
+    ["Early, minutes after", "The first wave", `Fast-response genes fire first: ${mE("early").up.slice(0, 3).map((g) => esc(g[0])).join(", ")} and others. The energy genes in the chart have barely moved yet.`, nch("early")],
+    ["3.5 hours", "The peak", `The energy programme switches on. ${peakTxt}`, nch("3.5-4h")],
+    ["24 hours", "Rebuilding", `The alarm fades. Slower genes take over, led by ${mE("24h").up.slice(0, 3).map((g) => esc(g[0])).join(", ")}: fat burning and mitochondria, the start of what training builds on.`, nch("24h")],
+  ];
+  $("#tsteps").innerHTML = tsteps.map(([w, t, p, n], k) => `<div class="tstep" data-k="${k}"><span class="when">${w}</span><div class="big"><span data-n="${n}">${fmt(n)}</span><small>genes changed</small></div><h3>${t}</h3><p>${p}</p></div>`).join("");
+  let fpK = -1;
+  const tstepEls = $$("#tsteps .tstep");
+  function sigProgress(vh, tops) {
+    const mid = vh * (innerWidth < 980 ? 0.75 : 0.55); let k = 0;
+    tops.forEach((top, i) => { if (top < mid) k = i; });
+    if (k !== fpK) {
+      fpK = k; fpShow(k);
+      const num = $(`#tsteps .tstep[data-k="${k}"] [data-n]`);
+      if (num && !reduced) { const to = +num.dataset.n, t0 = performance.now(); const step = (t) => { const e = Math.min(1, (t - t0) / 900); num.textContent = fmt(Math.round(to * (1 - Math.pow(1 - e, 3)))); if (e < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
+    }
+  }
+  $("#scrub").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; const k = +b.dataset.k; fpShow(k); fpK = k; const t = $$("#tsteps .tstep")[k]; if (t) goTo(t); });
+
+  (function activation() {
+    let max = 1; for (const m of Object.keys(MLAB)) for (const t of TISSUES) for (const p of TIMES) { const s = sigById[sid(t, m, p)]; max = Math.max(max, s.n_up + s.n_down); }
+    let h = `<tr><th></th>${TIMES.map((p) => `<th class="c">${TPLAB[p]}</th>`).join("")}</tr>`;
+    for (const m of Object.keys(MLAB)) for (const t of TISSUES) { h += `<tr><th>${MLAB[m]} · ${TLAB[t]}</th>`; for (const p of TIMES) { const s = sigById[sid(t, m, p)]; const n = s.n_up + s.n_down; const hv = Math.round(Math.log10(n + 1) / Math.log10(max + 1) * 92); h += `<td class="v${hv > 62 ? " strong" : ""}" style="--h:${hv}" title="${esc(plab(s.label))}: ${fmt(s.n_up)} up, ${fmt(s.n_down)} down">${fmt(n)}</td>`; } h += "</tr>"; }
+    $("#actTable").innerHTML = h;
+  })();
+  const GENE_TXT = { PPARGC1A: "Master switch for building new mitochondria", NR4A3: "The gene most consistently switched on by exercise", VEGFA: "Signals the growth of new blood vessels", PDK4: "Shifts muscle towards burning fat", HK2: "Helps muscle pull sugar from the blood", ESRRA: "Partner of PGC-1α in energy production", TFAM: "Copies the DNA inside mitochondria", ATF3: "Early alarm gene for cell stress", MYC: "Growth signal", IL6: "A messenger muscle releases during exercise" };
+  (function genes() {
+    const T = DATA.traj; if (!T || !T.genes.length) return; const W = 112, Hh = 60, L = 4, R = 4, Tp = 6, B = 6, xs = (k) => L + (W - L - R) * (k / 3);
+    $("#genes").innerHTML = T.genes.slice(0, 8).map((g) => { const vals = Object.keys(MLAB).flatMap((m) => T.lfc[m][g].filter((v) => v != null)); const lim = Math.max(0.5, ...vals.map(Math.abs)) * 1.12; const ys = (v) => Tp + (Hh - Tp - B) * (1 - (v + lim) / (2 * lim));
+      let s = `<line class="grid" x1="${L}" x2="${W - R}" y1="${ys(0)}" y2="${ys(0)}" stroke-dasharray="2 3"/>`;
+      for (const m of Object.keys(MLAB)) { const colr = m === "endurance" ? "var(--endur)" : "var(--resist)"; const pts = T.lfc[m][g].map((v, k) => [xs(k), ys(v ?? 0), T.fdr[m][g][k]]); s += `<polyline class="tr" fill="none" stroke="${colr}" stroke-width="2" stroke-linejoin="round" points="${pts.map((p) => p[0] + "," + p[1]).join(" ")}"/>`; pts.forEach((p, k) => { if (k) s += `<circle class="pop" cx="${p[0]}" cy="${p[1]}" r="2.8" fill="${p[2] < 0.05 ? colr : "var(--surface)"}" stroke="${colr}" stroke-width="1.4"/>`; }); }
+      return `<div class="gene"><svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="${esc(g)} over time">${s}</svg><div><b>${esc(g)}</b><span>${esc(GENE_TXT[g] || "")}</span></div></div>`; }).join("");
+  })();
+
+  // ---------- findings bento ----------
+  (function bento() {
+    const V = DATA.validation, Rt = DATA.rat, RB = DATA.robust, m = "endurance";
+    const rawTop = CD[m].slice().sort((a, b) => a.m - b.m), nCyt = rawTop.slice(0, 15).filter((c) => c.cyt).length;
+    const cand = CD[m].filter((c) => c.c != null).sort((a, b) => a.c - b.c);
+    const neg = V.controls.filter((c) => c.direction === "oppose" && c.signature === "muscle|resistance|24h").sort((a, b) => a.percentile - b.percentile);
+    const noG = RB ? RB.ablation_summary.find((a) => a.config === "Without GSFM") : null;
+    const boots = RB ? RB.bootstrap.map((b) => b.jaccard_vs_unperturbed_median) : [];
+    const tiles = [];
+    tiles.push(`<article class="tile a"><span class="tag">01 · THE STRESS TRAP</span><div style="display:flex;gap:18px;align-items:baseline;flex-wrap:wrap"><span class="bignum on" data-to="${nCyt}" data-suffix=" of 15">${nCyt} of 15</span><h3 style="flex:1;min-width:220px">top simple matches are cell-killing drugs</h3></div>
+      <p>Ask only "which drug looks most like exercise?" and cancer drugs win. They damage cells, which sets off the same alarm genes as a hard workout. SynThera's good-versus-stress score strikes them out and keeps drugs that copy the adaptations.</p>
+      <div class="versus" id="trap"><div class="vlist"><h4>Simple match <span class="pill warn">stress</span></h4>${rawTop.slice(0, 7).map((c) => `<div class="it${c.cyt ? " x" : ""}"><span>${esc(DATA.drugs[c.i].name)}</span>${c.cyt ? '<span class="pill warn">cell-killing</span>' : ""}</div>`).join("")}</div>
+      <div class="vlist"><h4>SynThera shortlist <span class="pill ok">good</span></h4>${cand.slice(0, 7).map((c) => `<div class="it in"><span>${esc(DATA.drugs[c.i].name)}</span><span class="pill ok">+${c.b.toFixed(1)}</span></div>`).join("")}</div></div></article>`);
+    if (neg.length) tiles.push(`<article class="tile b"><span class="tag">02 · THE GROWTH SWITCH</span><span class="bignum off">top ${neg[0].percentile.toFixed(1)}%</span><h3>It found mTOR on its own</h3><p>Weight training builds muscle through mTOR. Its blockers, such as sirolimus, ranked among the most anti-exercise of all ${fmt(N)} compounds.</p>
+      <div class="scale"><div class="ax"></div>${neg.map((c) => `<span class="pin" style="left:${Math.max(1.5, Math.min(98.5, c.percentile)).toFixed(1)}%" title="${esc(c.drug_id)}: top ${c.percentile.toFixed(1)}%"></span>`).join("")}<span class="end" style="left:0">opposes</span><span class="end" style="right:0">copies</span></div></article>`);
+    if (Rt) tiles.push(`<article class="tile c"><span class="tag">03 · SPECIES MATTERS</span><span class="bignum on" data-to="${Rt.top100_overlap}" data-suffix=" of 100">${Rt.top100_overlap} of 100</span><h3>Rats and people disagree</h3><p>Top drugs shared by the rat and human screens; ${Math.round(Rt.genes_lost_frac * 100)}% of the rat signal was lost in translation.</p>
+      <div class="venn" id="venn"><div class="h">Human</div>${Rt.top100_overlap > 0 ? "" : '<div class="gap">≠</div>'}<div class="r">Rat</div></div></article>`);
+    if (noG) tiles.push(`<article class="tile d"><span class="tag">04 · THE AI MATTERS</span><div style="display:flex;gap:16px;align-items:baseline;flex-wrap:wrap"><span class="bignum on" data-to="${Math.round(100 - noG.top50_jaccard_vs_full * 100)}" data-suffix="%">${Math.round(100 - noG.top50_jaccard_vs_full * 100)}%</span><h3 style="flex:1;min-width:200px">drop in top-50 overlap without the GSFM model</h3></div>
+      <div class="hbars">${RB.ablation_summary.filter((a) => a.config !== "Full ensemble (4 methods)" && a.config !== "GSFM only").map((a) => `<div class="hb"><span>${esc(a.config.replace("Without weighted connectivity", "Without CMap match").replace("Without GSFM", "Without the AI model").replace("Without XSum", "Without extreme genes"))}</span><span class="t"><i class="shrink${a.config === "Without GSFM" ? " ai" : ""}" style="width:${(a.top50_jaccard_vs_full * 100).toFixed(0)}%"></i></span><b>${(a.top50_jaccard_vs_full * 100).toFixed(0)}%</b></div>`).join("")}</div><p>Overlap of the top 50 with the full ranking after removing one method (Jaccard: drugs in both lists ÷ drugs in either). Removing the AI model lowers it the most.</p></article>`);
+    if (boots.length) tiles.push(`<article class="tile e"><span class="tag">05 · ROBUST</span><div style="display:flex;gap:16px;align-items:baseline;flex-wrap:wrap"><span class="bignum good">${Math.round(Math.min(...boots) * 100)}–${Math.round(Math.max(...boots) * 100)}%</span><h3 style="flex:1;min-width:200px">shortlist overlap after scrambling the data</h3></div>
+      <div class="spark">${boots.map((b) => `<i style="height:${Math.max(6, b * 100)}%" title="${Math.round(b * 100)}%"></i>`).join("")}</div><p>${Math.round((RB.bootstrap_params.noise_fraction || 0.2) * 100)}% of gene values scrambled, ${RB.bootstrap_params.n_boot} reruns per fingerprint. Overlap with the original top 50 (Jaccard); by chance it would be about ${Math.round(RB.bootstrap[0].jaccard_random_expected * 100)}%.</p></article>`);
+    $("#bento").innerHTML = tiles.join("");
+  })();
+
+  // ---------- marquee ----------
+  (function marquee() {
+    const top = (m, lab) => CD[m].filter((c) => c.c != null).sort((a, b) => a.c - b.c).slice(0, 10).map((c) => [c, lab]);
+    const html = [...top("endurance", "cycling"), ...top("resistance", "weights")].map(([c, lab]) => `<span class="mq-item"><i></i>${esc(DATA.drugs[c.i].name)}<small>${lab} · top ${topPct(c.m)}%</small></span>`).join("");
+    $("#mq").innerHTML = html + html;
+  })();
+
+  // ---------- candidates ----------
+  const cand = { m: "endurance", all: false };
+  function tabsInd(container) { if (!container) return; const sel = container.querySelector('[aria-selected="true"],[aria-pressed="true"]'); let ind = container.querySelector(".ind"); if (!ind) { ind = document.createElement("span"); ind.className = "ind"; container.prepend(ind); } if (sel) { ind.style.width = sel.offsetWidth + "px"; ind.style.transform = `translateX(${sel.offsetLeft - 4}px)`; } }
+  function renderCandTabs() { $("#candTabs").innerHTML = Object.keys(MLAB).map((m) => `<button type="button" role="tab" aria-selected="${m === cand.m}" data-m="${m}">${MLONG[m]}</button>`).join(""); tabsInd($("#candTabs")); }
+  $("#candTabs").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; cand.m = b.dataset.m; renderCandTabs(); renderCards(true); });
+  const zbar = (v, colv) => `<span class="t"><i class="grow" style="width:${Math.max(0, Math.min(100, (v / 4) * 100))}%;background:var(${colv})"></i></span>`;
+  function renderCards(animateIn) {
+    const rule = CD.rule;
+    $("#candIntro").textContent = `Drugs already approved for other uses that rank in the top ${Math.round(rule.match_top * 100)}% for matching exercise and copy its adaptations more than its stress. Cell-killing drugs and drugs tested in fewer than ${rule.min_cells} cell types are left out. These are leads for laboratory testing, not treatments.`;
+    const list = CD[cand.m].filter((c) => c.c != null).sort((a, b) => a.c - b.c);
+    $("#cards").innerHTML = list.slice(0, 6).map((c, k) => { const d = DATA.drugs[c.i];
+      return `<article class="dcard rv" data-delay="${k * 80}"><div class="top"><span class="rk">${String(c.c).padStart(2, "0")}</span><span class="mol">${I.mol}</span></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="pill blue">top ${topPct(c.m)}% match</span><span class="pill ok">Approved</span></div>
+        <h3>${esc(d.name)}</h3>${d.use ? `<div class="use">Used for ${esc(d.use)}</div>` : ""}<div class="moa">${esc(d.moa || "Mechanism not annotated")}</div>
+        <div class="gs"><div>Good ${zbar(c.a, "--good")}<b>${c.a > 0 ? "+" : ""}${c.a}</b></div><div>Stress ${zbar(c.s, "--warn")}<b>${c.s > 0 ? "+" : ""}${c.s}</b></div></div>
+        <div class="facts"><span class="pill">${d.cells} cell types</span><span class="pill">strong in ${c.f} fingerprint${c.f === 1 ? "" : "s"}</span></div>
+        <button class="btn" style="justify-self:start;padding:9px 15px" type="button" data-id="${esc(d.id)}">Look up in explorer</button></article>`; }).join("");
+    $("#allBtn").textContent = cand.all ? "Hide the full list" : `Show all ${list.length} candidates`; $("#allBtn").setAttribute("aria-expanded", String(cand.all)); $("#allList").hidden = !cand.all;
+    $("#allList").innerHTML = list.map((c) => `<li><span class="n">${c.c}</span><button type="button" data-id="${esc(DATA.drugs[c.i].id)}">${esc(DATA.drugs[c.i].name)}</button><span class="b">+${c.b}</span></li>`).join("");
+    bindCards();
+    if (animateIn && anim) { $$("#cards .dcard").forEach((c) => { c.dataset.obs = "1"; }); G.from("#cards .dcard", { y: 30, rotateX: -10, duration: 0.8, stagger: 0.06, ease: "expo.out", clearProps: "transform" }); }
+    else observeReveal($("#cards"));
+  }
+  function bindCards() {
+    if (!fine) return;
+    $$("#cards .dcard").forEach((card) => {
+      card.addEventListener("pointermove", (e) => { const r = card.getBoundingClientRect(); const x = e.clientX - r.left, y = e.clientY - r.top; card.style.setProperty("--mx", x + "px"); card.style.setProperty("--my", y + "px"); if (!reduced) card.style.transform = `rotateX(${((y / r.height) - 0.5) * -6}deg) rotateY(${((x / r.width) - 0.5) * 7}deg)`; });
+      card.addEventListener("pointerleave", () => { card.style.transform = ""; });
+    });
+  }
+  $("#allBtn").addEventListener("click", () => { cand.all = !cand.all; renderCards(false); });
+  function openInExplorer(id, modality) {
+    const d = DATA.drugs.find((x) => x.id === id); if (!d) return;
+    state.modality = modality || state.modality; state.tissue = "muscle"; state.time = "3.5-4h"; state.q = d.name; state.approved = isApproved(d); state.sort = "rank"; state.open = d.id; state.shown = 30;
+    $("#q").value = d.name; $("#approved").checked = state.approved; $("#sort").value = "rank"; renderAll(); goTo("#explore");
+  }
+  $("#cards").addEventListener("click", (e) => { const b = e.target.closest("button[data-id]"); if (b) openInExplorer(b.dataset.id, cand.m); });
+  $("#allList").addEventListener("click", (e) => { const b = e.target.closest("button[data-id]"); if (b) openInExplorer(b.dataset.id, cand.m); });
+
+  // ---------- explorer ----------
+  function chips(list, dir, k) { const maxT = Math.max(...list.slice(0, k).map((g) => Math.abs(g[1] || 0)), 1); return list.slice(0, k).map(([g, t]) => { const w = Math.round(18 + 70 * Math.abs(t || 0) / maxT); return `<span class="chip ${dir}${w > 58 ? " strong" : ""}" style="--w:${w}" title="t = ${t}">${esc(g)}</span>`; }).join(""); }
+  function renderSeg() { $("#modSeg").innerHTML = Object.keys(MLAB).map((m) => `<button type="button" aria-pressed="${m === state.modality}" data-m="${m}">${MLAB[m]}</button>`).join(""); tabsInd($("#modSeg")); }
+  $("#modSeg").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; state.modality = b.dataset.m; store.set("syn.mod", state.modality); state.shown = 30; state.open = null; renderAll(); });
+  function renderMatrix() {
+    let h = `<div></div>` + TIMES.map((t) => `<div class="hd">${TPLAB[t]}</div>`).join("");
+    for (const t of TISSUES) { h += `<div class="rowhd">${TLAB[t]}</div>`; for (const p of TIMES) { const s = sigById[sid(t, state.modality, p)]; const sel = t === state.tissue && p === state.time; const hv = Math.min(100, Math.round(Math.sqrt(s.n_drugs_fdr) * 2.2));
+      h += `<button type="button" class="cellbtn${s.informative ? "" : " weak"}" aria-pressed="${sel}" data-t="${t}" data-p="${p}" title="${esc(sigName(s))}${s.informative ? "" : " · weak signal"}"><span class="t">${esc(plab(s.label))}</span><span class="g">${fmt(s.n_up + s.n_down)} genes</span><span class="g">${s.informative ? "strong" : "weak"}</span><span class="heat" style="--h:${s.informative ? hv : 0}"></span></button>`; } }
+    $("#matrix").innerHTML = h;
+  }
+  $("#matrix").addEventListener("click", (e) => { const b = e.target.closest(".cellbtn"); if (!b) return; state.tissue = b.dataset.t; state.time = b.dataset.p; state.shown = 30; state.open = null; renderAll(); });
+  const currentSig = () => sigById[sid(state.tissue, state.modality, state.time)];
+  function renderSigCard() {
+    const s = currentSig();
+    $("#sigcard").innerHTML = `<div><div class="eyebrow" style="color:var(--muted)">${esc(sigName(s))}</div><h3 style="margin-top:8px;font-size:1rem">${s.informative ? "Fingerprint used for ranking" : "Weak fingerprint"}</h3></div>
+      ${s.informative ? "" : `<div class="note">Only ${s.n_up + s.n_down} genes changed with confidence here, so the search uses the 50 strongest genes each way. Treat these rankings with caution; they are left out of the candidate list.</div>`}
+      <div><div class="count" style="margin-bottom:5px">Switched on most</div><div class="chips">${chips(s.up, "up", 10)}</div></div><div><div class="count" style="margin-bottom:5px">Switched off most</div><div class="chips">${chips(s.down, "down", 10)}</div></div>
+      <dl class="kv"><dt>Genes measured</dt><dd>${fmt(s.n_genes)}</dd><dt>Changed (up / down)</dt><dd>${fmt(s.n_up)} / ${fmt(s.n_down)}</dd><dt>Compounds that match</dt><dd>${fmt(s.n_drugs_fdr)} (${fmt(s.n_launched_fdr)} approved)</dd></dl>`;
+  }
+  const conf = (f) => (f < 0.01 ? ["High", "good"] : f < 0.05 ? ["Good", "good"] : f < 0.2 ? ["Weak", "warn"] : ["None", "none"]);
+  function rowsForSig() {
+    const s = currentSig(); const sc = DATA.scores[s.id]; const q = state.q.trim().toLowerCase();
+    const idx = DATA.drugs.map((d, i) => i).filter((i) => { const d = DATA.drugs[i]; if (state.approved && !isApproved(d)) return false; if (q && !(`${d.name} ${d.moa} ${d.target} ${d.use} ${d.id}`.toLowerCase().includes(q))) return false; return true; });
+    if (state.sort === "rank") idx.sort((a, b) => sc.rank[a] - sc.rank[b]); else if (state.sort === "inv") idx.sort((a, b) => sc.inv[a] - sc.inv[b]); else idx.sort((a, b) => (sc.ben[b] ?? -99) - (sc.ben[a] ?? -99) || sc.rank[a] - sc.rank[b]);
+    return { idx, sc };
+  }
+  function benBar(v) { if (v == null) return ""; const w = Math.min(50, Math.abs(v) / 4 * 50); return `<div style="display:flex;align-items:center;gap:7px"><div class="ben"><i class="${v >= 0 ? "pos" : "neg"}" style="width:${w}%"></i></div><span class="benval">${v > 0 ? "+" : ""}${v.toFixed(1)}</span></div>`; }
+  const tags = (d) => (d.control ? `<span class="pill blue">${d.control} control</span> ` : "") + (isApproved(d) ? "" : `<span class="pill">${esc(d.phase)}</span> `) + (d.cyt ? `<span class="pill warn" title="Kills or stresses cells; likely copies the stress side of exercise">cell-stress drug</span>` : "");
+  function renderTable() {
+    const { idx, sc } = rowsForSig(); const shown = idx.slice(0, state.shown);
+    $("#count").textContent = `${fmt(idx.length)} ${state.approved ? "approved drugs" : "compounds"} shown · ranked among all ${fmt(N)} compounds · click a row for details`;
+    if (!shown.length) { $("#tbody").innerHTML = `<tr><td colspan="6" class="empty">No drugs match “${esc(state.q)}”. Clear the search or untick “Approved only”.</td></tr>`; $("#more").hidden = true; return; }
+    let h = "";
+    shown.forEach((i, k) => { const d = DATA.drugs[i]; const rank = state.sort === "inv" ? sc.inv[i] : sc.rank[i]; const open = state.open === d.id; const [cl, cc] = conf(sc.fdr[i]);
+      h += `<tr class="drug" data-id="${esc(d.id)}" tabindex="0" aria-expanded="${open}"><td class="rkc">${k + 1}</td><td><div class="dname">${esc(d.name)} ${tags(d)}</div><div class="dmoa" title="${esc(d.moa)}">${esc(d.moa || "Mechanism not annotated")}</div></td><td class="rkc">top ${topPct(rank)}%<small>#${fmt(rank)}${state.sort === "inv" ? " opposing" : ""}</small></td><td>${benBar(sc.ben[i])}</td><td class="hide-sm"><span class="conf ${cc}">${cl}</span></td><td class="hide-sm num">${d.cells}</td></tr>`;
+      if (open) h += `<tr class="detail"><td colspan="6">${detail(i)}</td></tr>`; });
+    $("#tbody").innerHTML = h; $("#more").hidden = idx.length <= state.shown;
+  }
+  function detail(i) {
+    const d = DATA.drugs[i]; const s = currentSig(); const sc = DATA.scores[s.id];
+    const grids = Object.keys(MLAB).map((m) => { let g = `<div class="h"></div>` + TIMES.map((p) => `<div class="h">${TPLAB[p]}</div>`).join(""); for (const t of TISSUES) { g += `<div class="rh">${TLAB[t]}</div>`; for (const p of TIMES) { const S = sigById[sid(t, m, p)]; const r = DATA.scores[S.id].rank[i]; const hv = heat(r); g += `<div class="c${hv > 60 ? " strong" : ""}${S.informative ? "" : " weak"}" style="--h:${hv}" title="${esc(sigName(S))}: rank ${fmt(r)}">${topPct(r)}%</div>`; } } return `<div><div class="count" style="margin-bottom:6px;font-weight:600;color:var(--ink)">${MLAB[m]}</div><div class="heatgrid">${g}</div></div>`; }).join("");
+    return `<div class="detail-body"><div style="display:grid;gap:12px;align-content:start"><h3 style="text-transform:capitalize">${esc(d.name)}</h3>
+      <dl class="kv"><dt>Used for</dt><dd class="txt">${esc(d.use || "Not annotated")}</dd><dt>How it works</dt><dd class="txt">${esc(d.moa || "Not annotated")}</dd><dt>Targets</dt><dd class="txt">${esc(d.target || "Not annotated")}</dd><dt>Status</dt><dd class="txt">${isApproved(d) ? "Approved drug" : esc(d.phase)}</dd><dt>Lab evidence</dt><dd class="txt">${d.sigs} fingerprints from ${d.cells} cell types</dd><dt>Good / stress</dt><dd>${sc.ad[i]} / ${sc.st[i]}</dd></dl>
+      <div><div class="count" style="margin-bottom:6px;font-weight:600;color:var(--ink)">How each method scored it (${esc(sigName(s))})</div><div class="mbars">${sc.m[i].map((p, k) => `<div>${METH[k]}<span class="t"><i class="${k === 3 ? "ai" : ""}" style="width:${Math.max(2, 100 - p)}%"></i></span><b>top ${pctTxt(p)}%</b></div>`).join("")}</div></div>
+      <p class="muted" style="font-size:var(--t-tiny)">Based on human cell lines in the lab. A strong match means similar gene changes, not proof the drug gives the benefits of exercise in people.</p></div>
+      <div style="display:grid;gap:8px;align-content:start"><div class="count" style="font-weight:600;color:var(--ink)">Match across all 18 fingerprints (darker = closer)</div><div class="two">${grids}</div></div></div>`;
+  }
+  $("#tbody").addEventListener("click", (e) => { const tr = e.target.closest("tr.drug"); if (!tr) return; state.open = state.open === tr.dataset.id ? null : tr.dataset.id; renderTable(); });
+  $("#tbody").addEventListener("keydown", (e) => { if (e.key !== "Enter" && e.key !== " ") return; const tr = e.target.closest("tr.drug"); if (!tr) return; e.preventDefault(); state.open = state.open === tr.dataset.id ? null : tr.dataset.id; renderTable(); const again = document.querySelector(`tr.drug[data-id="${CSS.escape(tr.dataset.id)}"]`); if (again) again.focus(); });
+  $("#q").addEventListener("input", (e) => { state.q = e.target.value; state.shown = 30; renderTable(); });
+  $("#approved").addEventListener("change", (e) => { state.approved = e.target.checked; state.shown = 30; renderTable(); });
+  $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; state.shown = 30; renderTable(); });
+  $("#more").addEventListener("click", () => { state.shown += 30; renderTable(); });
+  function renderAll() { renderSeg(); renderMatrix(); renderSigCard(); renderTable(); drawMap(); }
+
+  // ---------- evidence ----------
+  const TCOL = { muscle: "var(--on)", blood: "var(--off)", adipose: "var(--warn)" };
+  function dotChart(rows, opts) {
+    const W = 600, left = 150, right = 16, top = 16, rowH = 30, Hh = top + rows.length * rowH + 34; const x = (p) => left + (W - left - right) * (p / 100); let g = ""; let n = 0;
+    [0, 25, 50, 75, 100].forEach((t) => { g += `<line class="grid" x1="${x(t)}" x2="${x(t)}" y1="${top - 6}" y2="${top + rows.length * rowH}"/><text x="${x(t)}" y="${top + rows.length * rowH + 16}" text-anchor="middle">${t}</text>`; });
+    g += `<text x="${(left + W - right) / 2}" y="${Hh - 4}" text-anchor="middle">${esc(opts.xlabel)}</text><line class="axisl" x1="${x(50)}" x2="${x(50)}" y1="${top - 6}" y2="${top + rows.length * rowH}" stroke-dasharray="3 3"/>`;
+    rows.forEach((r, k) => { const y = top + k * rowH + rowH / 2; g += `<text class="ink" x="${left - 10}" y="${y + 4}" text-anchor="end">${esc(r.label)}</text>`; r.points.forEach((p) => { g += `<circle class="pop" style="animation-delay:${(n++ * 35)}ms" cx="${x(p.x)}" cy="${y}" r="5.5" fill="${TCOL[p.tissue]}" fill-opacity="0.88" stroke="var(--surface)" stroke-width="1.5"><title>${esc(p.title)}</title></circle>`; }); });
+    return `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="${esc(opts.aria)}">${g}</svg>`;
+  }
+  const median = (a) => { if (!a.length) return 0; const s = a.slice().sort((x, y) => x - y); const m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : Math.round((s[m - 1] + s[m]) / 2); };
+  (function evidence() {
+    const v = DATA.validation; const infoSet = new Set(DATA.sigs.filter((s) => s.informative).map((s) => s.id));
+    $("#ctrlLegend").innerHTML = TISSUES.map((t) => `<span><i style="background:${TCOL[t]}"></i>${TLAB[t]}</span>`).join("") + "<span>Dashed line = random. Further left = ranked higher.</span>";
+    const alias = { acadesine: "AICAR" }; const posRows = [];
+    for (const [m, names] of [["endurance", ["acadesine", "metformin", "GW-501516", "resveratrol"]], ["resistance", ["formoterol", "clenbuterol", "salbutamol"]]]) for (const name of names) { const pts = v.controls.filter((c) => c.drug_id === name && c.direction === "mimic" && infoSet.has(c.signature)).map((c) => ({ x: c.percentile, tissue: c.tissue, title: `${alias[name] || name} · ${sigName(sigById[c.signature])}: top ${c.percentile.toFixed(1)}%` })); if (pts.length) posRows.push({ label: `${alias[name] || name} (${MLAB[m].toLowerCase()})`, points: pts }); }
+    $("#ctrlChart").innerHTML = dotChart(posRows, { xlabel: "rank among all compounds (percentile)", aria: "Known exercise-like drugs" });
+    const cs = v.controls_summary.filter((c) => c.direction === "mimic"); const nSig = cs.filter((c) => c.p_vs_random < 0.05).length; const resSig = cs.filter((c) => c.modality === "resistance" && c.p_vs_random < 0.1).length;
+    $("#ctrlText").textContent = `Drugs known to act a bit like exercise in animals should rank high. Asthma drugs that build muscle (clenbuterol, formoterol) did, for weight training (better than random in ${nSig} fingerprint${nSig === 1 ? "" : "s"} at p < 0.05, ${resSig} at p < 0.1). The endurance group (AICAR, metformin, GW-501516, resveratrol) was only partly recovered: GW-501516 reached the top 9–12% in muscle, metformin and AICAR did not. Most of these were discovered in rodents, which fits the species gap; L1000's cancer cell lines are another likely reason.`;
+    const negRows = ["sirolimus", "everolimus", "torin-1", "torin-2"].map((name) => ({ label: name, points: v.controls.filter((c) => c.drug_id === name && c.direction === "oppose" && infoSet.has(c.signature)).map((c) => ({ x: c.percentile, tissue: c.tissue, title: `${name} · ${sigName(sigById[c.signature])}: top ${c.percentile.toFixed(1)}% opposing` })) })).filter((r) => r.points.length);
+    $("#negChart").innerHTML = dotChart(negRows, { xlabel: "rank for opposing weight training (percentile)", aria: "mTOR inhibitors" });
+    const ns = v.controls_summary.filter((c) => c.direction === "oppose" && c.tissue === "muscle").sort((a, b) => a.p_vs_random - b.p_vs_random)[0];
+    $("#negText").textContent = `mTOR drives muscle growth after weight training, so mTOR blockers should look like anti-exercise drugs. In muscle they did: on average in the top ${ns ? ns.mean_percentile : "–"}% for opposing the ${ns ? TPLAB[ns.timepoint] : ""} fingerprint (p = ${ns ? ns.p_vs_random.toExponential(0) : "–"} against random drug sets). In blood, which reflects immune cells rather than muscle, they did not.`;
+    const perm = v.permutation.slice().sort((a, b) => b.n_fdr05 - a.n_fdr05); const W = 600, left = 190, rowH = 18, top = 6, Hh = top + perm.length * rowH + 24; const maxV = Math.max(...perm.map((p) => p.n_fdr05), 1); const sx = (val) => left + (W - left - 56) * (val / maxV); let g = "";
+    perm.forEach((p, k) => { const y = top + k * rowH; const s = sigById[p.signature]; g += `<text class="${p.informative ? "ink" : ""}" x="${left - 8}" y="${y + 12}" text-anchor="end">${esc(sigName(s))}</text><rect class="bar" style="animation-delay:${k * 30}ms" x="${left}" y="${y + 3}" width="${Math.max(1, sx(p.n_fdr05) - left)}" height="${rowH - 6}" rx="3" fill="${p.informative ? "var(--off)" : "var(--line)"}"/><text x="${sx(p.n_fdr05) + 6}" y="${y + 12}">${fmt(p.n_fdr05)}</text>`; });
+    g += `<text x="${left}" y="${Hh - 4}">compounds that beat random gene lists (grey = weak fingerprint)</text>`;
+    $("#permChart").innerHTML = `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Permutation test">${g}</svg>`;
+    const inf = v.permutation.filter((p) => p.informative);
+    $("#permText").textContent = `Each drug was also scored against ${DATA.meta.n_perm} random gene lists of the same size, and compared with its own random scores. For strong fingerprints a median of ${fmt(median(inf.map((p) => p.n_fdr05)))} compounds beat random with high confidence. The caveat: any coherent group of genes, such as the stress-alarm genes that dominate weak fingerprints, also beats random. That is why candidates are chosen by consistency and the good-versus-stress balance, not by this test alone.`;
+    const RB = DATA.robust; if (!RB) return;
+    const B = RB.bootstrap; const W2 = 600, left2 = 190, rowH2 = 22, top2 = 6, H2 = top2 + B.length * rowH2 + 26; const sx2 = (val) => left2 + (W2 - left2 - 44) * val; let g2 = "";
+    [0, 0.25, 0.5, 0.75, 1].forEach((t) => { g2 += `<line class="grid" x1="${sx2(t)}" x2="${sx2(t)}" y1="${top2}" y2="${top2 + B.length * rowH2}"/><text x="${sx2(t)}" y="${top2 + B.length * rowH2 + 14}" text-anchor="middle">${Math.round(t * 100)}%</text>`; });
+    B.forEach((b, k) => { const y = top2 + k * rowH2; const s = sigById[b.signature]; g2 += `<text class="ink" x="${left2 - 8}" y="${y + 15}" text-anchor="end">${esc(sigName(s))}</text><rect class="bar" style="animation-delay:${k * 40}ms" x="${left2}" y="${y + 5}" width="${Math.max(1, sx2(b.jaccard_vs_unperturbed_median) - left2)}" height="${rowH2 - 10}" rx="3" fill="var(--good)"/><text x="${sx2(b.jaccard_vs_unperturbed_median) + 6}" y="${y + 15}">${Math.round(b.jaccard_vs_unperturbed_median * 100)}%</text>`; });
+    const rnd = B[0].jaccard_random_expected; g2 += `<line x1="${sx2(rnd)}" x2="${sx2(rnd)}" y1="${top2}" y2="${top2 + B.length * rowH2}" stroke="var(--warn)" stroke-dasharray="4 3" stroke-width="1.5"/>`;
+    $("#bootChart").innerHTML = `<svg viewBox="0 0 ${W2} ${H2}" role="img" aria-label="Stability under noise">${g2}</svg>`;
+    const p = RB.bootstrap_params; const meds = B.map((b) => b.jaccard_vs_unperturbed_median);
+    $("#bootText").textContent = `We scrambled ${Math.round(p.noise_fraction * 100)}% of the gene measurements, reran everything ${p.n_boot} times per fingerprint, and measured how much the top ${p.top_k} approved drugs overlapped with the original list (Jaccard overlap: drugs in both lists ÷ drugs in either): between ${Math.round(Math.min(...meds) * 100)}% and ${Math.round(Math.max(...meds) * 100)}%, compared with about ${(rnd * 100).toFixed(0)}% if the list were random (dashed line).`;
+    const ab = RB.ablation_summary; const full = ab[0]; const nm = { "Full ensemble (4 methods)": "All four methods", "Without GSFM": "Without the AI model (GSFM)", "GSFM only": "AI model only", "Without weighted connectivity": "Without classic CMap match", "Without XSum": "Without extreme genes" };
+    $("#ablTable").innerHTML = `<tr><th>Combination</th><th>Known exercise drugs, average rank</th><th>Top-50 overlap (Jaccard)</th></tr>` + ab.map((a) => `<tr><td>${nm[a.config] || esc(a.config)}</td><td class="num">top ${a.control_mean_percentile.toFixed(0)}%</td><td class="num">${(a.top50_jaccard_vs_full * 100).toFixed(0)}%</td></tr>`).join("");
+    const noG = ab.find((a) => a.config === "Without GSFM"), gOnly = ab.find((a) => a.config === "GSFM only");
+    $("#ablText").textContent = `We removed one method at a time and re-ran the ranking. Without the AI model, known exercise-like drugs sink (from the top ${full.control_mean_percentile.toFixed(0)}% to the top ${noG.control_mean_percentile.toFixed(0)}% on average) and the top-50 overlap with the full ranking falls to ${Math.round(noG.top50_jaccard_vs_full * 100)}%, a ${Math.round(100 - noG.top50_jaccard_vs_full * 100)}% drop (Jaccard). The AI model on its own finds them best (top ${gOnly.control_mean_percentile.toFixed(0)}%), but combining all four keeps any single method from deciding.`;
+  })();
+
+  // ---------- 2D canvases ----------
+  const tok = (n) => getComputedStyle(root).getPropertyValue(n).trim();
+  function rgb(hex) { const h = hex.replace("#", ""); const v = h.length === 3 ? h.split("").map((c) => c + c).join("") : h; return [0, 2, 4].map((i) => parseInt(v.slice(i, i + 2), 16)); }
+  function sizeCanvas(cv, cssH) { const w = cv.parentElement.clientWidth; const dpr = window.devicePixelRatio || 1; cv.style.height = cssH + "px"; cv.width = Math.max(1, Math.round(w * dpr)); cv.height = Math.round(cssH * dpr); const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); return { ctx, w, h: cssH }; }
+  const mapState = { pts: [], intro: reduced ? 1 : 0, started: reduced, b: null, order: {}, top: {} };
+  function drawMap() {
+    const M = DATA.map; const cv = $("#mapCanvas"); if (!M) { $("#map").hidden = true; return; }
+    const { ctx, w, h } = sizeCanvas(cv, cv.parentElement.clientWidth < 560 ? 380 : 520); if (!ctx) return;
+    if (!mapState.b) { const bx = M.bg.filter((_, i) => i % 2 === 0), by = M.bg.filter((_, i) => i % 2 === 1); const allx = M.x.concat(bx), ally = M.y.concat(by); mapState.b = { bx, by, x0: Math.min(...allx), x1: Math.max(...allx), y0: Math.min(...ally), y1: Math.max(...ally) }; }
+    const { bx, by, x0, x1, y0, y1 } = mapState.b; const pad = 18;
+    const e = 1 - Math.pow(1 - mapState.intro, 3); const cxm = w / 2, cym = h / 2;
+    const sx = (v) => cxm + ((pad + (w - 2 * pad) * (v - x0) / (x1 - x0 || 1)) - cxm) * e, sy = (v) => cym + ((pad + (h - 2 * pad) * (1 - (v - y0) / (y1 - y0 || 1))) - cym) * e;
+    const cOn = tok("--on"), cCell = tok("--cell"), cMu = tok("--muted"), cInk = tok("--ink"), cSurf = tok("--surface"), cE = tok("--endur"), cR = tok("--resist");
+    ctx.clearRect(0, 0, w, h); ctx.fillStyle = cSurf; ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = cMu; ctx.globalAlpha = 0.16 * e; for (let i = 0; i < bx.length; i++) ctx.fillRect(sx(bx[i]) - 1, sy(by[i]) - 1, 2, 2);
+    const s = currentSig(); const sc = DATA.scores[s.id]; const order = mapState.order[s.id] || (mapState.order[s.id] = DATA.drugs.map((d, i) => i).sort((a, b) => sc.rank[b] - sc.rank[a])); mapState.pts = [];
+    const P = rgb(cCell), Q = rgb(cOn), fade = Math.min(1, 0.3 + e);
+    for (const i of order) { const ap = isApproved(DATA.drugs[i]); const t = Math.max(0.08, heat(sc.rank[i]) / 100); const px = sx(M.x[i]), py = sy(M.y[i]); ctx.globalAlpha = (ap ? 0.9 : 0.45) * fade; ctx.fillStyle = `rgb(${Math.round(P[0] + (Q[0] - P[0]) * t)},${Math.round(P[1] + (Q[1] - P[1]) * t)},${Math.round(P[2] + (Q[2] - P[2]) * t)})`; ctx.beginPath(); ctx.arc(px, py, ap ? 3.2 : 2.2, 0, 7); ctx.fill(); mapState.pts.push([px, py, i]); }
+    ctx.globalAlpha = 1;
+    $("#mapSide").innerHTML = `<div class="eyebrow" style="color:var(--muted)">Coloured by</div><h3 style="font-size:1rem">${esc(sigName(s))}</h3><div style="height:10px;border-radius:5px;background:linear-gradient(90deg, var(--cell), var(--on))"></div><div class="legend" style="justify-content:space-between"><span>average</span><span>closest match</span></div><div class="legend"><span><i style="background:var(--endur);border-radius:2px;transform:rotate(45deg)"></i>cycling fingerprint</span><span><i style="background:var(--resist);border-radius:2px;transform:rotate(45deg)"></i>weights fingerprint</span></div><p>Labelled: the eight closest approved matches. Larger dots are approved drugs; faint grey dots are a sample of the other ${fmt(N - DATA.drugs.length)} compounds. Change the fingerprint in the explorer to recolour the map.</p>`;
+    if (e < 0.98) return;
+    const top = mapState.top[s.id] || (mapState.top[s.id] = DATA.drugs.map((d, i) => i).filter((i) => isApproved(DATA.drugs[i])).sort((a, b) => sc.rank[a] - sc.rank[b]).slice(0, 8));
+    ctx.font = "600 11px " + tok("--font"); ctx.fillStyle = cInk; ctx.strokeStyle = cSurf; ctx.lineWidth = 3; const placed = [];
+    top.forEach((i) => { const px = sx(M.x[i]), py = sy(M.y[i]); ctx.beginPath(); ctx.arc(px, py, 4.5, 0, 7); ctx.fill(); const name = DATA.drugs[i].name; const tw = (ctx.measureText(name) || {}).width || name.length * 6; let ly = py + 4; for (let k = 0; k < 6 && placed.some((b) => Math.abs(b.y - ly) < 13 && px + 7 < b.x + b.w && px + 7 + tw > b.x); k++) ly += 13; placed.push({ x: px + 7, y: ly, w: tw }); ctx.strokeText(name, px + 7, ly); ctx.fillText(name, px + 7, ly); });
+    (M.sigs || []).forEach((g) => { const S = sigById[g.id]; if (!S || !S.informative) return; const px = sx(g.x), py = sy(g.y), r = g.id === s.id ? 8 : 5.5; ctx.fillStyle = S.modality === "endurance" ? cE : cR; ctx.strokeStyle = cSurf; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(px, py - r); ctx.lineTo(px + r, py); ctx.lineTo(px, py + r); ctx.lineTo(px - r, py); ctx.closePath(); ctx.fill(); ctx.stroke(); });
+  }
+  function mapIntro() { if (mapState.started) return; mapState.started = true; const t0 = performance.now(); const step = (t) => { mapState.intro = Math.min(1, (t - t0) / 1700); drawMap(); if (mapState.intro < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
+  function nearest(e) { const r = e.currentTarget.getBoundingClientRect(); const x = e.clientX - r.left, y = e.clientY - r.top; let best = -1, bd = 64; for (const [px, py, i] of mapState.pts) { const d2 = (px - x) ** 2 + (py - y) ** 2; if (d2 < bd) { bd = d2; best = i; } } return { best, x, y }; }
+  $("#mapCanvas").addEventListener("mousemove", (e) => { const { best, x, y } = nearest(e); const tip = $("#mapTip"); if (best < 0) { tip.hidden = true; return; } const d = DATA.drugs[best]; tip.hidden = false; tip.style.left = x + "px"; tip.style.top = y + "px"; tip.textContent = `${d.name} · top ${topPct(DATA.scores[currentSig().id].rank[best])}%${isApproved(d) ? " · approved" : ""}`; });
+  $("#mapCanvas").addEventListener("mouseleave", () => { $("#mapTip").hidden = true; });
+  $("#mapCanvas").addEventListener("click", (e) => { const { best } = nearest(e); if (best >= 0) openInExplorer(DATA.drugs[best].id); });
+
+  // ---------- rat, limits, researchers ----------
+  (function rat() {
+    const r = DATA.rat; if (!r) { $("#rat").hidden = true; return; }
+    $("#ratBody").innerHTML = `<div class="ratgrid"><div class="card rv"><div class="ratnums"><div class="bign"><b>${r.spearman.toFixed(2)}</b><span>agreement between human and rat rankings (1 = identical, 0 = unrelated)</span></div><div class="bign"><b>${r.top100_overlap}/100</b><span>top compounds in common</span></div><div class="bign"><b>${Math.round(r.genes_lost_frac * 100)}%</b><span>of rat signal lost converting to human genes</span></div></div>
+      <h3 style="margin-top:8px">Known exercise-like drugs, rank (lower is better)</h3><table class="plain"><tr><th>Drug</th><th>Human</th><th>Rat</th></tr>${Object.entries(r.controls || {}).map(([n, v]) => `<tr><td>${esc(n === "acadesine" ? "AICAR" : n)}</td><td class="num"${v.human_pct < v.rat_pct ? ' style="font-weight:600;color:var(--ink)"' : ""}>top ${v.human_pct}%</td><td class="num"${v.rat_pct < v.human_pct ? ' style="font-weight:600;color:var(--ink)"' : ""}>top ${v.rat_pct}%</td></tr>`).join("")}</table>
+      <p>Human data ranks metformin and resveratrol higher; rat data ranks AICAR higher. Four drugs cannot settle which species is right, but they show the starting point moves individual drugs a long way.</p></div>
+      <div class="card rv"><h3>Closest approved matches</h3><table class="plain"><tr><th>#</th><th>From human data</th><th>From rat data</th></tr>${r.top_human.map((hh, k) => `<tr><td class="num">${k + 1}</td><td style="text-transform:capitalize">${esc(hh)}</td><td style="text-transform:capitalize">${esc(r.top_rat[k] || "")}</td></tr>`).join("")}</table>
+      <p>The rat data come from 8 weeks of training and the human data from one session, so part of the gap reflects short-term versus long-term exercise as well as species. Against the human 24 h fingerprint, closer to long-term adaptation, agreement rises only to ${r.vs_24h.spearman.toFixed(2)} with ${r.vs_24h.top100_overlap} of the top 100 shared.</p></div></div>`;
+  })();
+  $("#limitsList").innerHTML = [[I.clock, "One session, not months of training", "The public human data cover a single workout. The 12-week training part of the study was cut short by COVID-19 and is not released, so these fingerprints show the first steps of adaptation."], [I.cells, "Cancer cells, not muscle", "The drug library was measured mostly in cancer cell lines; none is muscle. Any candidate still has to be tested in muscle cells."], [I.signal, "Some tissues are quiet", "Fat and 24-hour blood changed too little to search with. They are shown as weak and left out of the candidate list."], [I.flask, "Leads, not treatments", "A drug that matches exercise's gene changes is a reason for a laboratory experiment. It is not evidence that the drug helps people, and nothing here is medical advice."]].map(([ic, b, t]) => `<li class="rv"><span class="ico">${ic}</span><div><b>${b}</b><span>${t}</span></div></li>`).join("");
+  const m = DATA.meta;
+  $("#msteps").innerHTML = [["Human signatures", `18 MoTrPAC difference-in-changes contrasts (${m.releases.motrpac}; dream mixed models; exercise minus non-exercise control) for 3 tissues × 2 modalities × 3 times, Ensembl to Entrez.`], ["Drug library", `${fmt(N)} compounds from ${m.releases.lincs}: exemplar Level-5 signatures collapsed per drug with MODZ on 10,174 landmark and best-inferred genes; drugs merged across LINCS IDs by name.`], ["Adaptive and stress modules", "Hallmark 2020 and Reactome 2022 gene sets (oxidative phosphorylation, fatty acids, myogenesis, angiogenesis, mitochondrial biogenesis vs TNFα/NF-κB, inflammation, IL-6, apoptosis, p53, UPR); overlaps and immediate-early genes excluded."], ["Four connectivity methods", `Weighted connectivity score (CMap), Spearman on landmark genes, XSum, and GSFM embedding cosine (${m.releases.gsfm}; ${(m.gsfm_coverage * 100).toFixed(1)}% of L1000 genes in vocabulary). Each score standardised against the compound's own null from ${m.n_perm} random queries.`], ["Aggregation and significance", "Robust Rank Aggregation (Kolde 2012) of the four standardised ranks, ties broken by mean rank; pooled-null permutation p-values with Benjamini–Hochberg FDR; benefit index = adaptive minus stress projection (z)."], ["Validation and prioritisation", `Positive and negative controls, method ablation, ${DATA.robust ? DATA.robust.bootstrap_params.n_boot : 30}-run noise bootstrap, UMAP drug map and a rat PASS1B comparison arm. Candidates: approved, top ${Math.round(CD.rule.match_top * 100)}% overall match, ranked by benefit, cytotoxic mechanisms and fewer than ${CD.rule.min_cells} cell lines excluded.`]].map(([b, t], i) => `<li><span class="no">${String(i + 1).padStart(2, "0")}</span><b>${b}</b><span>${t}</span></li>`).join("");
+  $("#datatab").innerHTML = `<tr><th>Source</th><th>Used for</th><th>Licence</th></tr><tr><td><a href="https://motrpac-data.org/data-download" target="_blank" rel="noopener">MoTrPAC Data Hub</a>, ${esc(m.releases.motrpac)}</td><td>Human exercise fingerprints</td><td>CC BY 4.0</td></tr><tr><td><a href="https://clue.io/releases/data-dashboard" target="_blank" rel="noopener">CMap LINCS 2020</a></td><td>Drug fingerprints, ${fmt(N)} compounds</td><td>CLUE terms</td></tr><tr><td><a href="https://clue.io/repurposing" target="_blank" rel="noopener">Drug Repurposing Hub</a> 2020-03-24</td><td>Approval status, mechanism, uses</td><td>CLUE terms</td></tr><tr><td>MSigDB Hallmark 2020, Reactome 2022 (Enrichr)</td><td>Good and stress gene groups</td><td>Source licences</td></tr><tr><td><a href="https://github.com/MaayanLab/gsfm" target="_blank" rel="noopener">GSFM</a> (Clarke, Marino &amp; Ma'ayan, Patterns 2026)</td><td>AI gene-set embeddings</td><td>BSD-3-Clause</td></tr><tr><td><a href="https://github.com/MoTrPAC/MotrpacRatTraining6moData" target="_blank" rel="noopener">MoTrPAC rat training</a></td><td>Rat comparison</td><td>CC BY 4.0</td></tr>`;
+  $("#outputs").innerHTML = (DATA.outputs || []).map((o) => `<li><span>${esc(o.file)}</span><span>${o.mb < 0.1 ? "<0.1" : o.mb} MB</span></li>`).join("");
+  $("#repro").innerHTML = [["Pinned inputs:", `${m.releases.motrpac}; ${m.releases.lincs}; ${m.releases.hub}; GSFM ${m.releases.gsfm}.`], ["Fixed seed:", "19 for permutations, bootstraps and the map."], ["Checked inputs:", "the 33 GB LINCS file is verified by size and by reading its first, last and 20 random signatures."], ["Verified scoring:", "the fast connectivity calculation matches a brute-force version to within 3×10⁻⁷."]].map(([b, t]) => `<li><b style="color:var(--ink)">${b}</b> ${t}</li>`).join("");
+  const ma = DATA.validation.method_agreement; const mlab = ["CMap", "Spearman", "XSum", "GSFM"];
+  let mt = `<table class="mat"><tr><th></th>${mlab.map((l) => `<th>${l}</th>`).join("")}</tr>`; ma.spearman.forEach((row, a) => { mt += `<tr><th style="text-align:right">${mlab[a]}</th>${row.map((r) => `<td style="background:color-mix(in oklab, var(--off) ${Math.round(Math.abs(r) * 85)}%, var(--cell));${Math.abs(r) > 0.6 ? "color:#fff" : ""}">${r.toFixed(2)}</td>`).join("")}</tr>`; }); $("#methodMat").innerHTML = mt + "</table>";
+  (function sigMat() {
+    const sa = DATA.validation.signature_agreement; const n = sa.order.length; const cs2 = 15, off = 140; let hm = "";
+    sa.order.forEach((id, a) => { const s = sigById[id]; hm += `<text x="${off - 6}" y="${off + a * cs2 + 11}" text-anchor="end" font-size="9" class="${s.informative ? "ink" : ""}">${esc(sigName(s))}</text>`; sa.spearman[a].forEach((r, b) => { hm += `<rect x="${off + b * cs2}" y="${off + a * cs2}" width="${cs2 - 1}" height="${cs2 - 1}" rx="2" fill="color-mix(in oklab, var(${r >= 0 ? "--on" : "--off"}) ${Math.round(Math.abs(r) * 100)}%, var(--cell))"><title>r = ${r}</title></rect>`; }); });
+    sa.order.forEach((id, b) => { const s = sigById[id]; hm += `<text transform="translate(${off + b * cs2 + 10},${off - 6}) rotate(-60)" font-size="9" class="${s.informative ? "ink" : ""}">${esc(sigName(s))}</text>`; });
+    const S = off + n * cs2 + 8; $("#sigMat").innerHTML = `<svg viewBox="0 0 ${S} ${S}" role="img" aria-label="Agreement between fingerprints">${hm}</svg>`;
+    const ix = (id) => sa.order.indexOf(id); const r1 = sa.spearman[ix("muscle|endurance|3.5-4h")]?.[ix("muscle|resistance|3.5-4h")];
+    $("#sigMatText").textContent = `Spearman correlation of drug scores between fingerprints. Cycling and weights in muscle at 3.5 h agree at r = ${r1 != null ? r1.toFixed(2) : "–"}: much of the drug-level response is shared.`;
+  })();
+  const vol = { mod: "endurance" };
+  function renderVolSeg() { $("#volSeg").innerHTML = Object.keys(MLAB).map((k) => `<button type="button" aria-pressed="${k === vol.mod}" data-m="${k}">${MLAB[k]}</button>`).join(""); tabsInd($("#volSeg")); }
+  $("#volSeg").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; vol.mod = b.dataset.m; renderVolSeg(); drawVolcano(); });
+  function drawVolcano() {
+    const V = DATA.volcano && DATA.volcano[vol.mod]; const cv = $("#volcano"); if (!V || !cv.parentElement.clientWidth) return;
+    const { ctx, w, h } = sizeCanvas(cv, cv.parentElement.clientWidth < 560 ? 240 : 300); if (!ctx) return; const pad = { l: 44, r: 14, t: 12, b: 34 };
+    const xmax = Math.max(1, ...V.lfc.map(Math.abs)) * 1.02, ymax = Math.max(2, ...V.q) * 1.05; const X = (v) => pad.l + (w - pad.l - pad.r) * ((v + xmax) / (2 * xmax)), Y = (v) => pad.t + (h - pad.t - pad.b) * (1 - v / ymax);
+    const cOn = tok("--on"), cOff = tok("--off"), cMu = tok("--muted"), cLine = tok("--line"), cInk = tok("--ink"), cSurf = tok("--surface");
+    ctx.clearRect(0, 0, w, h); ctx.fillStyle = cSurf; ctx.fillRect(0, 0, w, h); ctx.strokeStyle = cLine; ctx.lineWidth = 1; ctx.font = "11px " + tok("--mono"); ctx.fillStyle = cMu;
+    const fy = Y(-Math.log10(0.05)); ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(pad.l, fy); ctx.lineTo(w - pad.r, fy); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.moveTo(X(0), pad.t); ctx.lineTo(X(0), h - pad.b); ctx.stroke();
+    const xt = xmax > 3 ? 2 : 1; ctx.textAlign = "center"; for (let v = -Math.floor(xmax / xt) * xt; v <= xmax; v += xt) ctx.fillText(String(v), X(v), h - pad.b + 14); ctx.fillText("log2 fold change vs rested group", (pad.l + w - pad.r) / 2, h - 4);
+    const yt = ymax > 40 ? 20 : ymax > 15 ? 10 : 5; ctx.textAlign = "right"; for (let v = 0; v <= ymax; v += yt) ctx.fillText(String(v), pad.l - 6, Y(v) + 4);
+    for (let i = 0; i < V.lfc.length; i++) { const sig = V.q[i] > -Math.log10(0.05); ctx.fillStyle = sig ? (V.lfc[i] > 0 ? cOn : cOff) : cMu; ctx.globalAlpha = sig ? 0.55 : 0.18; ctx.fillRect(X(V.lfc[i]) - 1.2, Y(V.q[i]) - 1.2, 2.4, 2.4); }
+    ctx.globalAlpha = 1; ctx.fillStyle = cInk; ctx.textAlign = "left"; ctx.font = "600 11px " + tok("--mono"); V.labels.forEach(([lx, ly, g]) => { const px = X(lx), py = Y(ly); ctx.beginPath(); ctx.arc(px, py, 3, 0, 7); ctx.fill(); ctx.fillText(g, Math.min(px + 5, w - pad.r - 60), py - 4); });
+    const s = sigById[sid("muscle", vol.mod, "3.5-4h")]; $("#volText").textContent = `${fmt(V.lfc.length)} genes measured in thigh muscle; ${fmt(s.n_up)} up and ${fmt(s.n_down)} down with FDR below 5% (dashed line), 3.5 h after the session, relative to the rested group. The top ${s.query_sizes[0]} up and ${s.query_sizes[1]} down genes form the query.`;
+  }
+  $$("details.res").forEach((d) => d.addEventListener("toggle", () => { if (d.open && d.querySelector("#volcano")) { renderVolSeg(); drawVolcano(); } }));
+  $("#generated").textContent = `Results generated ${m.generated}. ${fmt(m.n_drugs_in_page)} drugs on this page: every approved drug, the top 100 per fingerprint and the validation controls.`;
+
+  // ---------- motion system ----------
+  function countUp(el) { const to = +el.dataset.to; if (!isFinite(to)) return; const suf = el.dataset.suffix || ""; const t0 = performance.now(); const dur = 1300; const step = (t) => { const k = Math.min(1, (t - t0) / dur); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))) + suf; if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
+  function play(el) {
+    const delay = +(el.dataset.delay || 0);
+    A(el, [{ transform: "translateY(32px)" }, { transform: "none" }], { duration: 1000, delay, easing: EASE });
+    el.classList.add("play");
+    $$(".grow", el).forEach((g, k) => A(g, [{ transform: "scaleX(0)" }, { transform: "none" }], { duration: 1000, delay: delay + 200 + k * 70, easing: EASE, fill: "backwards" }));
+    $$(".shrink", el).forEach((g, k) => A(g, [{ width: "100%" }, { width: g.style.width }], { duration: 1500, delay: delay + 300 + k * 140, easing: EASE, fill: "backwards" }));
+    $$(".spark i", el).forEach((g, k) => A(g, [{ transform: "scaleY(0)" }, { transform: "none" }], { duration: 800, delay: delay + 200 + k * 60, easing: EASE, fill: "backwards" }));
+    $$(".pin", el).forEach((p, k) => A(p, [{ left: "50%" }, { left: p.style.left }], { duration: 1500, delay: delay + 250 + k * 120, easing: EASE, fill: "backwards" }));
+    $$("[data-to]", el).forEach(countUp);
+    $$(".gene svg .tr", el).forEach((p, k) => A(p, [{ strokeDashoffset: 260 }, { strokeDashoffset: 0 }], { duration: 1500, delay: delay + k * 45, easing: "cubic-bezier(.4,0,.2,1)", fill: "backwards" }));
+    const v = $("#venn", el); if (v) { A($(".h", v), [{ transform: "translateX(46px)" }, { transform: "none" }], { duration: 1500, delay: delay + 350, easing: EASE, fill: "backwards" }); A($(".r", v), [{ transform: "translateX(-46px)" }, { transform: "none" }], { duration: 1500, delay: delay + 350, easing: EASE, fill: "backwards" }); }
+    const trap = $("#trap", el);
+    if (trap) {
+      $$(".it.x span:first-child", trap).forEach((it, k) => { try { A(it, [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: 450, delay: delay + 700 + k * 220, easing: EASE, fill: "backwards", pseudoElement: "::after" }); } catch {} });
+      $$(".it.in", trap).forEach((it, k) => A(it, [{ transform: "translateX(-16px)", opacity: 0.15 }, { transform: "none", opacity: 1 }], { duration: 650, delay: delay + 1300 + k * 120, easing: EASE, fill: "backwards" }));
+    }
+    if (el.querySelector("#mapCanvas")) mapIntro();
+  }
+  function observeReveal(rootEl) {
+    if (reduced || !("IntersectionObserver" in window)) { mapIntro(); return; }
+    const io = new IntersectionObserver((ents) => ents.forEach((en) => { if (!en.isIntersecting) return; io.unobserve(en.target); play(en.target); }), { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
+    $$(".rv, .tile, .ev .card", rootEl || document).forEach((el) => { if (el.dataset.obs) return; el.dataset.obs = "1"; io.observe(el); });
+  }
+  if (anim) {
+    // hero: masked character rise, then the supporting copy and stats
+    const h1 = $("#heroTitle"); let chars = null, sp = null;
+    if (SPLIT) { try { h1.classList.add("is-split"); sp = SPLIT.create(h1, { type: "words,chars", mask: "words" }); chars = sp.chars; } catch { h1.classList.remove("is-split"); chars = null; } }
+    const tl = G.timeline({ defaults: { ease: "expo.out" } });
+    if (chars && chars.length) tl.from(chars, { yPercent: 120, duration: 1.15, stagger: 0.017, onComplete: () => { try { sp.revert(); } catch {} h1.classList.remove("is-split"); } });
+    else tl.from(h1, { y: 40, duration: 1 });
+    tl.from(".hero .eyebrow", { y: 16, opacity: 0, duration: 0.8 }, 0.05)
+      .from(".hero .sub, .hero .lead", { y: 24, opacity: 0, duration: 1, stagger: 0.08 }, 0.4)
+      .from(".hero .cta .btn", { y: 20, opacity: 0, duration: 0.9, stagger: 0.08 }, 0.55)
+      .from(".chipf", { scale: 0.5, opacity: 0, duration: 1, stagger: 0.09, ease: "back.out(1.7)" }, 0.7)
+      .from(".hstat", { y: 30, opacity: 0, duration: 1, stagger: 0.07 }, 0.7);
+    $$(".hstat [data-count]").forEach((el) => { const to = +el.dataset.count; const o = { v: 0 }; el.textContent = "0"; G.to(o, { v: to, duration: 2, delay: 0.8, ease: "power3.out", onUpdate: () => { el.textContent = fmt(Math.round(o.v)); } }); });
+    if (ST) {
+      // headline word sweeps, story-card entrances and a gentle hero parallax
+      if (SPLIT) $$("h2.split").forEach((h) => { try { const s2 = SPLIT.create(h, { type: "words" }); G.from(s2.words, { y: 20, opacity: 0.12, duration: 1, stagger: 0.04, ease: "expo.out", scrollTrigger: { trigger: h, start: "top 86%", once: true } }); } catch {} });
+      $$(".panel .pcard").forEach((c) => { G.from(c, { y: 90, opacity: 0.2, duration: 1.2, ease: "expo.out", scrollTrigger: { trigger: c, start: "top 88%", once: true } }); G.from($$(".zchip", c), { y: 12, opacity: 0, duration: 0.7, stagger: 0.06, ease: "expo.out", scrollTrigger: { trigger: c, start: "top 70%", once: true } }); });
+      G.to(".hero-copy", { y: -90, opacity: 0.25, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
+      G.to(".hstats", { y: -40, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
+      G.fromTo(".wordmark", { yPercent: 40 }, { yPercent: 0, ease: "none", scrollTrigger: { trigger: "footer.site", start: "top bottom", end: "bottom bottom", scrub: true } });
+    }
+    if (fine) $$(".mag").forEach((b) => { b.addEventListener("pointermove", (e) => { const r = b.getBoundingClientRect(); G.to(b, { x: (e.clientX - r.left - r.width / 2) * 0.25, y: (e.clientY - r.top - r.height / 2) * 0.4, duration: 0.4, ease: "power3.out" }); }); b.addEventListener("pointerleave", () => G.to(b, { x: 0, y: 0, duration: 0.9, ease: "elastic.out(1, 0.4)" })); });
+  }
+
+  // ---------- scroll-linked state ----------
+  const nav = $("#nav"), prog = $("#prog"); let lastY = 0, ticking = false;
+  if ("IntersectionObserver" in window) { const so = new IntersectionObserver((ents) => ents.forEach((en) => { if (en.isIntersecting) { const k = en.target.dataset.sec; $$("#links a").forEach((a) => a.classList.toggle("on", a.dataset.for === k)); } }), { rootMargin: "-40% 0px -55% 0px" }); $$("[data-sec]").forEach((s) => so.observe(s)); }
+  function onScroll() {
+    // reads first
+    const se = document.scrollingElement || document.documentElement; const y = se.scrollTop, max = Math.max(1, se.scrollHeight - se.clientHeight), vh = innerHeight;
+    const r = storyEl.getBoundingClientRect(), pTops = panelEls.map((el) => el.getBoundingClientRect().top), tTops = tstepEls.map((el) => el.getBoundingClientRect().top);
+    const focused = nav.matches(":focus-within");
+    // then writes
+    prog.style.transform = `scaleX(${(y / max).toFixed(4)})`;
+    nav.classList.toggle("scrolled", y > 30);
+    nav.classList.toggle("dark", r.bottom > 70);
+    if (y > lastY + 4 && y > 700 && !focused) nav.classList.add("hide"); else if (y < lastY - 4) nav.classList.remove("hide");
+    lastY = y;
+    storyProgress(vh, r, pTops); sigProgress(vh, tTops); ticking = false;
+  }
+  addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  function redraw() { if (gl.theme) gl.theme(!isDark()); drawMap(); drawVolcano(); ["#candTabs", "#modSeg", "#volSeg"].forEach((s) => tabsInd($(s))); themeIcon(); }
+  let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { redraw(); onScroll(); }, 160); });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", redraw);
+  new MutationObserver(redraw).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+
+  renderCandTabs(); renderCards(false); renderAll(); observeReveal(document); onScroll();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { ["#candTabs", "#modSeg"].forEach((s) => tabsInd($(s))); if (ST) ST.refresh(); });
+})();
+</script>

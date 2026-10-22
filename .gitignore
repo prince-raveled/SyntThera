@@ -1,0 +1,18 @@
+# Python / tooling
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+node_modules/
+
+# Large data: download with the steps in README.md (raw ~1.1 GB, processed ~1.8 GB)
+/data/
+motrpac-data-download-*.zip
+
+# Pitch video production and raw team recordings
+video/
+Team-Video/
+
+# Registration form (contains university register numbers)
+docs/TEJAS019 final.docx
+docs/TEJAS019 final.pdf

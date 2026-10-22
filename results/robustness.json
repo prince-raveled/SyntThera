@@ -1,0 +1,547 @@
+{
+ "ablation_summary": [
+  {
+   "config": "Full ensemble (4 methods)",
+   "control_mean_percentile": 47.79,
+   "spearman_vs_full": 1.0,
+   "top50_jaccard_vs_full": 1.0
+  },
+  {
+   "config": "Without GSFM",
+   "control_mean_percentile": 50.823,
+   "spearman_vs_full": 0.958,
+   "top50_jaccard_vs_full": 0.617
+  },
+  {
+   "config": "GSFM only",
+   "control_mean_percentile": 41.557,
+   "spearman_vs_full": 0.775,
+   "top50_jaccard_vs_full": 0.379
+  },
+  {
+   "config": "Without weighted connectivity",
+   "control_mean_percentile": 49.362,
+   "spearman_vs_full": 0.959,
+   "top50_jaccard_vs_full": 0.643
+  },
+  {
+   "config": "Without XSum",
+   "control_mean_percentile": 47.273,
+   "spearman_vs_full": 0.968,
+   "top50_jaccard_vs_full": 0.769
+  }
+ ],
+ "ablation": [
+  {
+   "signature": "muscle|resistance|3.5-4h",
+   "config": "Full ensemble (4 methods)",
+   "control_mean_percentile": 50.8457,
+   "spearman_vs_full": 1.0,
+   "top50_jaccard_vs_full": 1.0
+  },
+  {
+   "signature": "muscle|resistance|3.5-4h",
+   "config": "Without GSFM",
+   "control_mean_percentile": 46.4252,
+   "spearman_vs_full": 0.9724,
+   "top50_jaccard_vs_full": 0.8519
+  },
+  {
+   "signature": "muscle|resistance|3.5-4h",
+   "config": "GSFM only",
+   "control_mean_percentile": 58.9881,
+   "spearman_vs_full": 0.8458,
+   "top50_jaccard_vs_full": 0.5385
+  },
+  {
+   "signature": "muscle|resistance|3.5-4h",
+   "config": "Without weighted connectivity",
+   "control_mean_percentile": 53.9151,
+   "spearman_vs_full": 0.9709,
+   "top50_jaccard_vs_full": 0.7241
+  },
+  {
+   "signature": "muscle|resistance|3.5-4h",
+   "config": "Without XSum",
+   "control_mean_percentile": 51.7296,
+   "spearman_vs_full": 0.9814,
+   "top50_jaccard_vs_full": 0.8182
+  },
+  {
+   "signature": "muscle|endurance|3.5-4h",
+   "config": "Full ensemble (4 methods)",
+   "control_mean_percentile": 32.9658,
+   "spearman_vs_full": 1.0,
+   "top50_jaccard_vs_full": 1.0
+  },
+  {
+   "signature": "muscle|endurance|3.5-4h",
+   "config": "Without GSFM",
+   "control_mean_percentile": 39.6336,
+   "spearman_vs_full": 0.9556,
+   "top50_jaccard_vs_full": 0.6949
+  },
+  {
+   "signature": "muscle|endurance|3.5-4h",
+   "config": "GSFM only",
+   "control_mean_percentile": 26.0596,
+   "spearman_vs_full": 0.7715,
+   "top50_jaccard_vs_full": 0.3333
+  },
+  {
+   "signature": "muscle|endurance|3.5-4h",
+   "config": "Without weighted connectivity",
+   "control_mean_percentile": 39.9655,
+   "spearman_vs_full": 0.9522,
+   "top50_jaccard_vs_full": 0.5625
+  },
+  {
+   "signature": "muscle|endurance|3.5-4h",
+   "config": "Without XSum",
+   "control_mean_percentile": 30.0446,
+   "spearman_vs_full": 0.9639,
+   "top50_jaccard_vs_full": 0.7544
+  },
+  {
+   "signature": "muscle|endurance|early",
+   "config": "Full ensemble (4 methods)",
+   "control_mean_percentile": 67.1639,
+   "spearman_vs_full": 1.0,
+   "top50_jaccard_vs_full": 1.0
+  },
+  {
+   "signature": "muscle|endurance|early",
+   "config": "Without GSFM",
+   "control_mean_percentile": 71.2407,
+   "spearman_vs_full": 0.9393,
+   "top50_jaccard_vs_full": 0.7241
+  },
+  {
+   "signature": "muscle|endurance|early",
+   "config": "GSFM only",
+   "control_mean_percentile": 46.4673,
+   "spearman_vs_full": 0.671,
+   "top50_jaccard_vs_full": 0.4286
+  },
+  {
+   "signature": "muscle|endurance|early",
+   "config": "Without weighted connectivity",
+   "control_mean_percentile": 66.4816,
+   "spearman_vs_full": 0.9469,
+   "top50_jaccard_vs_full": 0.7544
+  },
+  {
+   "signature": "muscle|endurance|early",
+   "config": "Without XSum",
+   "control_mean_percentile": 66.1329,
+   "spearman_vs_full": 0.9568,
+   "top50_jaccard_vs_full": 0.8868
+  },
+  {
+   "signature": "muscle|resistance|early",
+   "config": "Full ensemble (4 methods)",
+   "control_mean_percentile": 20.2976,
+   "spearman_vs_full": 1.0,
+   "top50_jaccard_vs_full": 1.0
+  },
+  {
+   "signature": "muscle|resistance|early",
+   "config": "Without GSFM",
+   "control_mean_percentile": 27.801,
+   "spearman_vs_full": 0.9387,
+   "top50_jaccard_vs_full": 0.4925
+  },
+  {
+   "signature": "muscle|resistance|early",
+   "config": "GSFM only",
+   "control_mean_percentile": 18.2682,
+   "spearman_vs_full": 0.7092,
+   "top50_jaccard_vs_full": 0.4286
+  },
+  {
+   "signature": "muscle|resistance|early",
+   "config": "Without weighted connectivity",
+   "control_mean_percentile": 16.0377,
+   "spearman_vs_full": 0.94,
+   "top50_jaccard_vs_full": 0.6393
+  },
+  {
+   "signature": "muscle|resistance|early",
+   "config": "Without XSum",
+   "control_mean_percentile": 25.2089,
+   "spearman_vs_full": 0.9507,
+   "top50_jaccard_vs_full": 0.9231
+  },
+  {
+   "signature": "muscle|resistance|24h",
+   "config": "Full ensemble (4 methods)",
+   "control_mean_percentile": 77.0261,
+   "spearman_vs_full": 1.0,
+   "top50_jaccard_vs_full": 1.0
+  },
+  {
+   "signature": "muscle|resistance|24h",
+   "config": "Without GSFM",
+   "control_mean_percentile": 74.0173,
+   "spearman_vs_full": 0.9621,
+   "top50_jaccard_vs_full": 0.5152
+  },
+  {
+   "signature": "muscle|resistance|24h",
+   "config": "GSFM only",
+   "control_mean_percentile": 63.1491,
+   "spearman_vs_full": 0.7888,
+   "top50_jaccard_vs_full": 0.2658
+  },
+  {
+   "signature": "muscle|resistance|24h",
+   "config": "Without weighted connectivity",
+   "control_mean_percentile": 78.9477,
+   "spearman_vs_full": 0.9634,
+   "top50_jaccard_vs_full": 0.5873
+  },
+  {
+   "signature": "muscle|resistance|24h",
+   "config": "Without XSum",
+   "control_mean_percentile": 73.1233,
+   "spearman_vs_full": 0.9716,
+   "top50_jaccard_vs_full": 0.6393
+  },
+  {
+   "signature": "muscle|endurance|24h",
+   "config": "Full ensemble (4 methods)",
+   "control_mean_percentile": 37.3164,
+   "spearman_vs_full": 1.0,
+   "top50_jaccard_vs_full": 1.0
+  },
+  {
+   "signature": "muscle|endurance|24h",
+   "config": "Without GSFM",
+   "control_mean_percentile": 37.3534,
+   "spearman_vs_full": 0.9683,
+   "top50_jaccard_vs_full": 0.5385
+  },
+  {
+   "signature": "muscle|endurance|24h",
+   "config": "GSFM only",
+   "control_mean_percentile": 39.1265,
+   "spearman_vs_full": 0.8203,
+   "top50_jaccard_vs_full": 0.3514
+  },
+  {
+   "signature": "muscle|endurance|24h",
+   "config": "Without weighted connectivity",
+   "control_mean_percentile": 41.2424,
+   "spearman_vs_full": 0.971,
+   "top50_jaccard_vs_full": 0.6393
+  },
+  {
+   "signature": "muscle|endurance|24h",
+   "config": "Without XSum",
+   "control_mean_percentile": 35.78,
+   "spearman_vs_full": 0.9768,
+   "top50_jaccard_vs_full": 0.6949
+  },
+  {
+   "signature": "blood|resistance|early",
+   "config": "Full ensemble (4 methods)",
+   "control_mean_percentile": 23.1694,
+   "spearman_vs_full": 1.0,
+   "top50_jaccard_vs_full": 1.0
+  },
+  {
+   "signature": "blood|resistance|early",
+   "config": "Without GSFM",
+   "control_mean_percentile": 31.9362,
+   "spearman_vs_full": 0.9585,
+   "top50_jaccard_vs_full": 0.6129
+  },
+  {
+   "signature": "blood|resistance|early",
+   "config": "GSFM only",
+   "control_mean_percentile": 18.6871,
+   "spearman_vs_full": 0.7582,
+   "top50_jaccard_vs_full": 0.5152
+  },
+  {
+   "signature": "blood|resistance|early",
+   "config": "Without weighted connectivity",
+   "control_mean_percentile": 22.4551,
+   "spearman_vs_full": 0.9629,
+   "top50_jaccard_vs_full": 0.7857
+  },
+  {
+   "signature": "blood|resistance|early",
+   "config": "Without XSum",
+   "control_mean_percentile": 21.4218,
+   "spearman_vs_full": 0.971,
+   "top50_jaccard_vs_full": 0.8182
+  },
+  {
+   "signature": "blood|endurance|early",
+   "config": "Full ensemble (4 methods)",
+   "control_mean_percentile": 73.6733,
+   "spearman_vs_full": 1.0,
+   "top50_jaccard_vs_full": 1.0
+  },
+  {
+   "signature": "blood|endurance|early",
+   "config": "Without GSFM",
+   "control_mean_percentile": 76.015,
+   "spearman_vs_full": 0.9547,
+   "top50_jaccard_vs_full": 0.6129
+  },
+  {
+   "signature": "blood|endurance|early",
+   "config": "GSFM only",
+   "control_mean_percentile": 61.5684,
+   "spearman_vs_full": 0.7502,
+   "top50_jaccard_vs_full": 0.3889
+  },
+  {
+   "signature": "blood|endurance|early",
+   "config": "Without weighted connectivity",
+   "control_mean_percentile": 75.0943,
+   "spearman_vs_full": 0.9544,
+   "top50_jaccard_vs_full": 0.7241
+  },
+  {
+   "signature": "blood|endurance|early",
+   "config": "Without XSum",
+   "control_mean_percentile": 75.2375,
+   "spearman_vs_full": 0.9662,
+   "top50_jaccard_vs_full": 0.8182
+  },
+  {
+   "signature": "blood|resistance|3.5-4h",
+   "config": "Full ensemble (4 methods)",
+   "control_mean_percentile": 24.9079,
+   "spearman_vs_full": 1.0,
+   "top50_jaccard_vs_full": 1.0
+  },
+  {
+   "signature": "blood|resistance|3.5-4h",
+   "config": "Without GSFM",
+   "control_mean_percentile": 31.2399,
+   "spearman_vs_full": 0.9648,
+   "top50_jaccard_vs_full": 0.6129
+  },
+  {
+   "signature": "blood|resistance|3.5-4h",
+   "config": "GSFM only",
+   "control_mean_percentile": 19.3048,
+   "spearman_vs_full": 0.8128,
+   "top50_jaccard_vs_full": 0.3333
+  },
+  {
+   "signature": "blood|resistance|3.5-4h",
+   "config": "Without weighted connectivity",
+   "control_mean_percentile": 23.2996,
+   "spearman_vs_full": 0.9586,
+   "top50_jaccard_vs_full": 0.4493
+  },
+  {
+   "signature": "blood|resistance|3.5-4h",
+   "config": "Without XSum",
+   "control_mean_percentile": 24.0791,
+   "spearman_vs_full": 0.9706,
+   "top50_jaccard_vs_full": 0.7241
+  },
+  {
+   "signature": "blood|endurance|3.5-4h",
+   "config": "Full ensemble (4 methods)",
+   "control_mean_percentile": 70.5374,
+   "spearman_vs_full": 1.0,
+   "top50_jaccard_vs_full": 1.0
+  },
+  {
+   "signature": "blood|endurance|3.5-4h",
+   "config": "Without GSFM",
+   "control_mean_percentile": 72.5632,
+   "spearman_vs_full": 0.9688,
+   "top50_jaccard_vs_full": 0.5152
+  },
+  {
+   "signature": "blood|endurance|3.5-4h",
+   "config": "GSFM only",
+   "control_mean_percentile": 63.9547,
+   "spearman_vs_full": 0.8183,
+   "top50_jaccard_vs_full": 0.2048
+  },
+  {
+   "signature": "blood|endurance|3.5-4h",
+   "config": "Without weighted connectivity",
+   "control_mean_percentile": 76.1835,
+   "spearman_vs_full": 0.9682,
+   "top50_jaccard_vs_full": 0.5625
+  },
+  {
+   "signature": "blood|endurance|3.5-4h",
+   "config": "Without XSum",
+   "control_mean_percentile": 69.9756,
+   "spearman_vs_full": 0.9732,
+   "top50_jaccard_vs_full": 0.6129
+  }
+ ],
+ "bootstrap": [
+  {
+   "signature": "muscle|resistance|3.5-4h",
+   "jaccard_vs_unperturbed_median": 0.77,
+   "jaccard_pairwise_median": 0.695,
+   "jaccard_random_expected": 0.016
+  },
+  {
+   "signature": "muscle|endurance|3.5-4h",
+   "jaccard_vs_unperturbed_median": 0.575,
+   "jaccard_pairwise_median": 0.471,
+   "jaccard_random_expected": 0.016
+  },
+  {
+   "signature": "muscle|endurance|early",
+   "jaccard_vs_unperturbed_median": 0.739,
+   "jaccard_pairwise_median": 0.667,
+   "jaccard_random_expected": 0.016
+  },
+  {
+   "signature": "muscle|resistance|early",
+   "jaccard_vs_unperturbed_median": 0.587,
+   "jaccard_pairwise_median": 0.538,
+   "jaccard_random_expected": 0.016
+  },
+  {
+   "signature": "muscle|resistance|24h",
+   "jaccard_vs_unperturbed_median": 0.482,
+   "jaccard_pairwise_median": 0.37,
+   "jaccard_random_expected": 0.016
+  },
+  {
+   "signature": "muscle|endurance|24h",
+   "jaccard_vs_unperturbed_median": 0.538,
+   "jaccard_pairwise_median": 0.449,
+   "jaccard_random_expected": 0.016
+  },
+  {
+   "signature": "blood|resistance|early",
+   "jaccard_vs_unperturbed_median": 0.667,
+   "jaccard_pairwise_median": 0.587,
+   "jaccard_random_expected": 0.016
+  },
+  {
+   "signature": "blood|endurance|early",
+   "jaccard_vs_unperturbed_median": 0.667,
+   "jaccard_pairwise_median": 0.562,
+   "jaccard_random_expected": 0.016
+  },
+  {
+   "signature": "blood|resistance|3.5-4h",
+   "jaccard_vs_unperturbed_median": 0.613,
+   "jaccard_pairwise_median": 0.493,
+   "jaccard_random_expected": 0.016
+  },
+  {
+   "signature": "blood|endurance|3.5-4h",
+   "jaccard_vs_unperturbed_median": 0.587,
+   "jaccard_pairwise_median": 0.471,
+   "jaccard_random_expected": 0.016
+  }
+ ],
+ "bootstrap_params": {
+  "n_boot": 30,
+  "noise_fraction": 0.2,
+  "top_k": 50,
+  "pool": "approved drugs"
+ },
+ "map_method": "UMAP (cosine, n_neighbors=30)",
+ "map_signatures": [
+  {
+   "id": "adipose|endurance|24h",
+   "x": 12.877530097961426,
+   "y": 8.695908546447754
+  },
+  {
+   "id": "adipose|endurance|3.5-4h",
+   "x": 10.192501068115234,
+   "y": 6.7012715339660645
+  },
+  {
+   "id": "adipose|endurance|early",
+   "x": 5.401144027709961,
+   "y": 11.975218772888184
+  },
+  {
+   "id": "adipose|resistance|24h",
+   "x": 12.15894889831543,
+   "y": 11.01872444152832
+  },
+  {
+   "id": "adipose|resistance|3.5-4h",
+   "x": 9.964262962341309,
+   "y": 7.04112434387207
+  },
+  {
+   "id": "adipose|resistance|early",
+   "x": 5.714289665222168,
+   "y": 12.127636909484863
+  },
+  {
+   "id": "blood|endurance|24h",
+   "x": 9.960257530212402,
+   "y": 9.901626586914062
+  },
+  {
+   "id": "blood|endurance|3.5-4h",
+   "x": 12.21925163269043,
+   "y": 12.613265991210938
+  },
+  {
+   "id": "blood|endurance|early",
+   "x": 5.255317687988281,
+   "y": 12.025979042053223
+  },
+  {
+   "id": "blood|resistance|24h",
+   "x": 12.167611122131348,
+   "y": 8.9010591506958
+  },
+  {
+   "id": "blood|resistance|3.5-4h",
+   "x": 12.33508014678955,
+   "y": 12.484736442565918
+  },
+  {
+   "id": "blood|resistance|early",
+   "x": 5.282497882843018,
+   "y": 11.839811325073242
+  },
+  {
+   "id": "muscle|endurance|24h",
+   "x": 12.704911231994629,
+   "y": 7.865797996520996
+  },
+  {
+   "id": "muscle|endurance|3.5-4h",
+   "x": 6.612585067749023,
+   "y": 9.76932144165039
+  },
+  {
+   "id": "muscle|endurance|early",
+   "x": 5.485963344573975,
+   "y": 12.027466773986816
+  },
+  {
+   "id": "muscle|resistance|24h",
+   "x": 9.627203941345215,
+   "y": 6.530790328979492
+  },
+  {
+   "id": "muscle|resistance|3.5-4h",
+   "x": 6.350802898406982,
+   "y": 10.295180320739746
+  },
+  {
+   "id": "muscle|resistance|early",
+   "x": 5.420682907104492,
+   "y": 11.953091621398926
+  }
+ ]
+}

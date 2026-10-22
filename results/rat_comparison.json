@@ -1,0 +1,82 @@
+{
+ "title": "Rat gastrocnemius, 8 weeks endurance training vs human muscle, 3.5\u20134 h after endurance exercise",
+ "spearman": -0.1978042181550309,
+ "top100_overlap": 0,
+ "top100_overlap_approved": 1,
+ "genes_lost_frac": 0.356020942408377,
+ "n_rat_sig": 573,
+ "query_fallback": false,
+ "vs_24h": {
+  "spearman": 0.2064869968761834,
+  "top100_overlap": 5,
+  "top100_overlap_approved": 16,
+  "top_human": [
+   "phensuximide",
+   "propylthiouracil",
+   "topiramate",
+   "vidarabine",
+   "betamethasone-acetate",
+   "phloretin",
+   "topotecan",
+   "abemaciclib",
+   "ondansetron",
+   "nifedipine"
+  ],
+  "top_rat": [
+   "clozapine",
+   "procaterol",
+   "cresol",
+   "nifedipine",
+   "viloxazine",
+   "triamterene",
+   "olaparib",
+   "riluzole",
+   "sorbic-acid",
+   "lomefloxacin"
+  ]
+ },
+ "controls": {
+  "acadesine": {
+   "human_pct": 66.4,
+   "rat_pct": 37.7
+  },
+  "metformin": {
+   "human_pct": 9.8,
+   "rat_pct": 60.2
+  },
+  "GW-501516": {
+   "human_pct": 8.9,
+   "rat_pct": 8.4
+  },
+  "resveratrol": {
+   "human_pct": 46.6,
+   "rat_pct": 65.6
+  }
+ },
+ "top_human": [
+  "vinorelbine",
+  "vincristine",
+  "benperidol",
+  "sitagliptin",
+  "imatinib",
+  "vinblastine",
+  "fentiazac",
+  "ingenol",
+  "fenbendazole",
+  "exemestane"
+ ],
+ "top_rat": [
+  "clozapine",
+  "procaterol",
+  "cresol",
+  "nifedipine",
+  "viloxazine",
+  "triamterene",
+  "olaparib",
+  "riluzole",
+  "sorbic-acid",
+  "lomefloxacin"
+ ],
+ "text": "Converting the rat signature to human genes kept only clean 1:1 orthologs present in L1000, losing 36% of the 573 significant rat genes. Across all 29,680 compounds the two rankings correlate at r = -0.20, and 0 of the top 100 compounds are shared (r = 0.21 against the human 24 h signature).",
+ "caveat": "The rat data are 8 weeks of training and the human data a single bout, so this difference mixes species with acute-versus-chronic exercise. It measures how much the drug list depends on the starting signature, which is the assumption earlier rodent-based screens left untested."
+}

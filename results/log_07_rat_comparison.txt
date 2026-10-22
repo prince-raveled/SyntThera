@@ -1,0 +1,8 @@
+ranking genes within each compound ...
+loading GSFM and embedding drug gene sets ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+ready in 0.0 min  (GSFM vocab covers 97.1% of L1000 genes)
+rat genes 13,771 (FDR<0.05: 573); after 1:1 orthologs in L1000 genes: 8,077 (369 significant) -> lost 35.6% of significant genes
+vs muscle|endurance|3.5-4h: Spearman -0.198, top-100 overlap 0, approved top-100 overlap 1
+vs muscle|endurance|24h: Spearman 0.206, top-100 overlap 5, approved top-100 overlap 16
+endurance controls (percentile, lower = better): {'acadesine': {'human_pct': 66.4, 'rat_pct': 37.7}, 'metformin': {'human_pct': 9.8, 'rat_pct': 60.2}, 'GW-501516': {'human_pct': 8.9, 'rat_pct': 8.4}, 'resveratrol': {'human_pct': 46.6, 'rat_pct': 65.6}}

@@ -1,0 +1,4 @@
+# Static site: the whole app is website/index.html with its data built in. No build step.
+[build]
+  publish = "website"
+  command = ""

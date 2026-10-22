@@ -1,0 +1,45 @@
+control recovery (informative signatures):
+               signature tissue   modality timepoint direction  n_controls  mean_percentile best_control  best_percentile  p_vs_random
+muscle|resistance|3.5-4h muscle resistance    3.5-4h     mimic           3             50.8   formoterol             10.6     0.515224
+muscle|resistance|3.5-4h muscle resistance    3.5-4h    oppose           4             23.0    sirolimus              1.2     0.029249
+ muscle|endurance|3.5-4h muscle  endurance    3.5-4h     mimic           4             33.0    GW-501516              8.9     0.126294
+  muscle|endurance|early muscle  endurance     early     mimic           4             67.2    GW-501516             53.5     0.877506
+ muscle|resistance|early muscle resistance     early     mimic           3             20.3  clenbuterol              8.0     0.035398
+ muscle|resistance|early muscle resistance     early    oppose           4             73.5      torin-2             50.7     0.943753
+   muscle|resistance|24h muscle resistance       24h     mimic           3             77.0   formoterol             52.7     0.945503
+   muscle|resistance|24h muscle resistance       24h    oppose           4              0.4    sirolimus              0.1     0.000050
+    muscle|endurance|24h muscle  endurance       24h     mimic           4             37.3    GW-501516             12.0     0.204240
+  blood|resistance|early  blood resistance     early     mimic           3             23.2  clenbuterol             13.0     0.054747
+  blood|resistance|early  blood resistance     early    oppose           4             90.2      torin-1             75.2     0.999050
+   blood|endurance|early  blood  endurance     early     mimic           4             73.7  resveratrol             54.1     0.947153
+ blood|resistance|3.5-4h  blood resistance    3.5-4h     mimic           3             24.9  clenbuterol             11.0     0.071146
+ blood|resistance|3.5-4h  blood resistance    3.5-4h    oppose           4             84.5      torin-1             62.2     0.993950
+  blood|endurance|3.5-4h  blood  endurance    3.5-4h     mimic           4             70.5    metformin             50.7     0.918504
+
+compounds passing permutation FDR < 0.05:
+                signature  n_fdr05  n_fdr05_launched  informative
+    adipose|endurance|24h       77                 1        False
+ adipose|endurance|3.5-4h       61                 1        False
+  adipose|endurance|early      720                18        False
+   adipose|resistance|24h       18                 0        False
+adipose|resistance|3.5-4h      268                13        False
+ adipose|resistance|early      243                13        False
+      blood|endurance|24h        9                 1        False
+   blood|endurance|3.5-4h      438                31         True
+    blood|endurance|early      974                94         True
+     blood|resistance|24h      947                27        False
+  blood|resistance|3.5-4h      441                37         True
+   blood|resistance|early     1160               123         True
+     muscle|endurance|24h      872                23         True
+  muscle|endurance|3.5-4h      377                25         True
+   muscle|endurance|early      747                68         True
+    muscle|resistance|24h      617                 7         True
+ muscle|resistance|3.5-4h      878                47         True
+  muscle|resistance|early      774                78         True
+
+mean method agreement (Spearman):
+          wtcs  spearman  xsum  gsfm
+wtcs      1.00      0.51  0.60  0.52
+spearman  0.51      1.00  0.65  0.46
+xsum      0.60      0.65  1.00  0.62
+gsfm      0.52      0.46  0.62  1.00

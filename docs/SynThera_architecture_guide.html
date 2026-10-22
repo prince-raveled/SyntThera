@@ -1,0 +1,884 @@
+<title>SynThera Architecture Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a field guide. Sticky contents rail on wide screens, one reading column, diagrams drawn in SynThera's own colour code
+   (copper = matches exercise, steel = opposes, teal = adaptation, amber = stress). */
+:root {
+  --bg: #F5F7F9; --surface: #FFFFFF; --sunk: #EBF0F4; --ink: #1C2C3B; --head: #17324D; --muted: #586A7A; --line: #D6DFE6;
+  --copper: #B0502C; --steel: #2D6485; --teal: #1C786D; --amber: #8E5C0C;
+  --sans: "Geist", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  --mono: "Geist Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C1620; --surface: #121F2B; --sunk: #0F1A25; --ink: #D6E1EA; --head: #F0F5F9; --muted: #8FA2B2; --line: #233749;
+    --copper: #E68A62; --steel: #80B2D9; --teal: #5CC1B3; --amber: #E3AD4D; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0C1620; --surface: #121F2B; --sunk: #0F1A25; --ink: #D6E1EA; --head: #F0F5F9; --muted: #8FA2B2; --line: #233749;
+  --copper: #E68A62; --steel: #80B2D9; --teal: #5CC1B3; --amber: #E3AD4D; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
+a { color: var(--steel); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; border-radius: 3px; }
+strong { color: var(--head); font-weight: 600; }
+
+.shell { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 48px 96px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; }
+@media (min-width: 1060px) { .shell { grid-template-columns: 200px minmax(0, 1fr); gap: 56px; } }
+main { min-width: 0; max-width: 800px; }
+
+/* contents */
+.toc { font-size: 0.875rem; }
+.toc .lab { font: 500 0.7rem/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 2px 16px; }
+.toc a { display: block; padding: 5px 0; color: var(--muted); text-decoration: none; line-height: 1.35; }
+.toc a:hover { color: var(--head); }
+.toc a.on { color: var(--copper); }
+@media (min-width: 1060px) {
+  .toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 32px); align-self: start; max-height: calc(100vh - 64px); overflow-y: auto; }
+  .toc ol { grid-template-columns: 1fr; }
+  .toc a { padding: 6px 0 6px 12px; border-left: 1px solid var(--line); }
+  .toc a.on { border-left-color: var(--copper); }
+}
+
+/* type */
+.eyebrow { font: 500 0.72rem/1.2 var(--mono); letter-spacing: 0.13em; text-transform: uppercase; color: var(--copper); }
+h1 { font-size: clamp(2rem, 4.4vw, 3rem); line-height: 1.08; letter-spacing: -0.025em; color: var(--head); font-weight: 650; margin: 14px 0 18px; text-wrap: balance; }
+h2 { font-size: 1.6rem; line-height: 1.2; letter-spacing: -0.015em; color: var(--head); font-weight: 650; margin: 0 0 14px; text-wrap: balance; }
+h3 { font-size: 1.1rem; line-height: 1.3; color: var(--head); font-weight: 600; margin: 34px 0 10px; text-wrap: balance; }
+p { margin: 0 0 14px; max-width: 68ch; }
+.lede { font-size: 1.15rem; color: var(--muted); max-width: 60ch; }
+.small { font-size: 0.875rem; color: var(--muted); }
+ul, ol { padding-left: 1.25em; margin: 0 0 14px; max-width: 68ch; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--sunk); padding: 0.12em 0.38em; border-radius: 4px; overflow-wrap: anywhere; }
+.num { font-variant-numeric: tabular-nums; }
+
+section { padding-block: 48px 8px; border-top: 1px solid var(--line); margin-top: 40px; scroll-margin-top: 16px; }
+header { padding-bottom: 8px; }
+
+/* say-this box */
+.say { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin: 22px 0; }
+.say .tag { font: 500 0.7rem/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--copper); margin-bottom: 10px; }
+.say p { margin: 0; font-size: 1.02rem; color: var(--head); }
+.note { background: var(--sunk); border-radius: 8px; padding: 14px 16px; margin: 18px 0; font-size: 0.94rem; }
+.note p:last-child { margin: 0; }
+
+/* steps intro */
+.three { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 20px 0; }
+.three > div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+.three b { display: block; font: 500 0.72rem/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+.three p { font-size: 0.93rem; margin: 0; }
+
+/* tables */
+.tbl { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; line-height: 1.5; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--head); background: var(--sunk); font-size: 0.82rem; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 600; color: var(--head); white-space: nowrap; }
+.yes { color: var(--teal); font-weight: 600; white-space: nowrap; }
+.no { color: var(--muted); font-weight: 600; white-space: nowrap; }
+
+/* architecture stack */
+.arch { margin: 22px 0 8px; }
+.layer { display: grid; grid-template-columns: 1fr; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+@media (min-width: 640px) { .layer { grid-template-columns: 150px minmax(0, 1fr); gap: 18px; } }
+.layer .lbl { font: 500 0.72rem/1.4 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.layer .lbl span { display: block; text-transform: none; letter-spacing: 0; font-family: var(--sans); font-size: 0.82rem; margin-top: 4px; }
+.nodes { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
+.node { padding: 6px 10px; border-radius: 6px; background: var(--sunk); border: 1px solid var(--line); font-size: 0.86rem; line-height: 1.35; }
+.node small { display: block; color: var(--muted); font-size: 0.76rem; }
+.node.ai { border-color: var(--copper); background: color-mix(in srgb, var(--copper) 10%, var(--surface)); }
+.node.core { border-color: var(--steel); background: color-mix(in srgb, var(--steel) 10%, var(--surface)); }
+.down { display: flex; justify-content: center; height: 30px; color: var(--muted); }
+.down svg { width: 14px; height: 30px; }
+
+/* fingerprint grid */
+.fp { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin: 18px 0; }
+.fpg { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; min-width: 0; }
+.fpg h4 { margin: 0 0 10px; font-size: 0.9rem; color: var(--head); }
+.fpg table { font-size: 0.82rem; }
+.fpg th, .fpg td { padding: 6px 8px; text-align: center; }
+.fpg th:first-child, .fpg td:first-child { text-align: left; }
+.cell { display: block; border-radius: 5px; padding: 4px 2px; font-variant-numeric: tabular-nums; }
+.cell.ok { background: color-mix(in srgb, var(--teal) 16%, var(--surface)); color: var(--head); }
+.cell.weak { background: repeating-linear-gradient(-45deg, var(--sunk) 0 5px, var(--surface) 5px 10px); color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 0.82rem; color: var(--muted); }
+.legend i { display: inline-block; width: 14px; height: 10px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
+
+/* pipeline */
+.steps { list-style: none; padding: 0; margin: 20px 0; display: grid; gap: 0; max-width: none; }
+.steps li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); margin: 0; }
+.steps li:last-child { border-bottom: 0; }
+.steps .n { font: 500 0.95rem/1.6 var(--mono); color: var(--copper); }
+.steps h4 { margin: 0 0 4px; font-size: 1rem; color: var(--head); }
+.steps h4 code { font-size: 0.8em; font-weight: 400; }
+.steps p { margin: 0 0 6px; font-size: 0.94rem; }
+.io { font: 0.8rem/1.5 var(--mono); color: var(--muted); overflow-wrap: anywhere; }
+
+/* scoring engine flow */
+.engine { margin: 22px 0; display: grid; gap: 0; }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+.box b { display: block; color: var(--head); font-size: 0.95rem; margin-bottom: 2px; }
+.box p { margin: 0; font-size: 0.86rem; color: var(--muted); }
+.row2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.row4 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 720px) { .row4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.box.m { border-top: 3px solid var(--steel); }
+.box.m.ai { border-top-color: var(--copper); }
+.box.good { border-color: color-mix(in srgb, var(--teal) 55%, var(--line)); }
+.box.out { background: color-mix(in srgb, var(--copper) 9%, var(--surface)); border-color: color-mix(in srgb, var(--copper) 45%, var(--line)); }
+
+/* judges */
+.judges { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin: 18px 0; }
+.judge { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+.judge .code { font: 500 0.72rem/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--steel); }
+.judge.ai .code { color: var(--copper); }
+.judge h4 { margin: 6px 0 6px; color: var(--head); font-size: 1rem; }
+.judge p { margin: 0; font-size: 0.92rem; }
+
+/* modules */
+.mods { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 16px 0 20px; }
+.mod { border-radius: 10px; padding: 14px 16px; border: 1px solid var(--line); background: var(--surface); min-width: 0; }
+.mod .t { font: 500 0.72rem/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; }
+.mod .c { font-size: 1.6rem; font-weight: 650; color: var(--head); margin: 6px 0 4px; font-variant-numeric: tabular-nums; }
+.mod p { margin: 0; font-size: 0.86rem; color: var(--muted); }
+.mod.a .t { color: var(--teal); } .mod.s .t { color: var(--amber); } .mod.x .t { color: var(--muted); }
+
+/* gsfm diagram */
+.fig { margin: 18px 0 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; overflow-x: auto; }
+.fig svg { display: block; width: 100%; min-width: 620px; height: auto; }
+.fig .cap { font-size: 0.82rem; color: var(--muted); margin-top: 8px; }
+svg .bar { fill: var(--steel); }
+svg .bar.emb { fill: var(--copper); }
+svg .bar.dec { fill: var(--muted); opacity: 0.55; }
+svg .fan { fill: var(--steel); opacity: 0.12; }
+svg .fan.dec { fill: var(--muted); opacity: 0.12; }
+svg .t1 { fill: var(--head); font: 600 14px var(--sans); }
+svg .t2 { fill: var(--muted); font: 12px var(--sans); }
+svg .t3 { fill: var(--copper); font: 600 12px var(--mono); letter-spacing: 0.06em; }
+svg .br { stroke: var(--muted); fill: none; stroke-width: 1.2; }
+svg .br.e { stroke: var(--steel); }
+
+/* example */
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0; margin: 18px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden; }
+.facts div { padding: 14px 16px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); min-width: 0; }
+.facts dt { font: 500 0.7rem/1.3 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.facts dd { margin: 4px 0 0; color: var(--head); font-weight: 600; font-variant-numeric: tabular-nums; }
+.facts dd span { display: block; font-weight: 400; color: var(--muted); font-size: 0.84rem; }
+dl { margin: 0; }
+
+/* code with copy */
+.cmd { display: flex; align-items: stretch; gap: 0; margin: 10px 0; border: 1px solid var(--line); border-radius: 8px; background: var(--sunk); overflow: hidden; max-width: 100%; }
+.cmd pre { margin: 0; padding: 11px 14px; font: 0.88rem/1.5 var(--mono); color: var(--head); overflow-x: auto; flex: 1; min-width: 0; }
+.cmd button { flex: none; border: 0; border-left: 1px solid var(--line); background: var(--surface); color: var(--muted); font: 500 0.75rem var(--mono); padding: 0 14px; cursor: pointer; }
+.cmd button:hover { color: var(--head); }
+
+/* options */
+.opts { display: grid; gap: 14px; margin: 18px 0; }
+.opt { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; min-width: 0; }
+.opt .t { font: 500 0.72rem/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--copper); }
+.opt h4 { margin: 8px 0 8px; font-size: 1.05rem; color: var(--head); }
+.opt p, .opt ol { font-size: 0.94rem; }
+.opt > :last-child { margin-bottom: 0; }
+
+/* Q&A */
+.qa { display: grid; gap: 0; margin: 16px 0; }
+.qa div { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.qa div:last-child { border-bottom: 0; }
+.qa dt { font-weight: 600; color: var(--head); margin-bottom: 6px; }
+.qa dd { margin: 0; max-width: 68ch; font-size: 0.96rem; }
+
+.gloss { display: grid; grid-template-columns: 1fr; gap: 0; margin: 16px 0; }
+@media (min-width: 640px) { .gloss { grid-template-columns: 190px minmax(0, 1fr); } }
+.gloss dt { font-weight: 600; color: var(--head); padding: 10px 0 0; }
+.gloss dd { margin: 0; padding: 2px 0 10px; border-bottom: 1px solid var(--line); font-size: 0.94rem; }
+@media (min-width: 640px) { .gloss dt { padding: 10px 0; border-bottom: 1px solid var(--line); } .gloss dd { padding: 10px 0; } }
+
+footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 0.82rem; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="shell">
+  <aside class="toc" aria-label="Contents">
+    <div class="lab">Contents</div>
+    <ol>
+      <li><a href="#summary">The short version</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#ml">What kind of ML is this?</a></li>
+      <li><a href="#gsfm">GSFM from zero</a></li>
+      <li><a href="#data">The datasets</a></li>
+      <li><a href="#features">How features are used</a></li>
+      <li><a href="#pipeline">The pipeline</a></li>
+      <li><a href="#scoring">The scoring engine</a></li>
+      <li><a href="#example">One drug, followed</a></li>
+      <li><a href="#trust">How we know it works</a></li>
+      <li><a href="#website">How the website was built</a></li>
+      <li><a href="#explorer">Reading the explorer</a></li>
+      <li><a href="#run">Running the demo</a></li>
+      <li><a href="#qa">Judges' questions</a></li>
+      <li><a href="#glossary">Glossary</a></li>
+    </ol>
+  </aside>
+
+  <main>
+    <header>
+      <div class="eyebrow">TEJAS019 · SynThera · team guide</div>
+      <h1>How SynThera works, from raw data to a live demo</h1>
+      <p class="lede">A plain-language walk through everything we built: the data, the AI model, what kind of machine learning is involved, the pipeline, the website, and how to run the site in front of judges. Every number here comes from the project's own result files.</p>
+    </header>
+
+    <!-- ============ SUMMARY ============ -->
+    <section id="summary">
+      <h2>The short version</h2>
+      <p>SynThera looks for <strong>approved drugs that switch genes on and off the way a workout does</strong>. At its heart it is a ranking engine: it holds up one fingerprint (exercise) against 29,680 drug fingerprints and asks which drugs look most alike.</p>
+      <div class="three">
+        <div><b style="color:var(--teal)">1 · Exercise fingerprint</b><p>From real people in the MoTrPAC study: which genes went up or down after one workout, in muscle, blood and fat, compared with people who rested.</p></div>
+        <div><b style="color:var(--steel)">2 · Drug fingerprints</b><p>From LINCS L1000: which genes went up or down when human cells were treated with each of 29,680 compounds.</p></div>
+        <div><b style="color:var(--copper)">3 · Matching</b><p>Four methods score every drug, one of them an AI model (GSFM). The votes are merged, the stress part of exercise is separated from the good part, and approved, non-toxic drugs at the top become the shortlist.</p></div>
+      </div>
+      <p>The result: <strong>82 candidate drugs for endurance exercise (cycling)</strong> and <strong>77 for resistance exercise (weights)</strong>, ready for lab testing.</p>
+      <div class="say">
+        <div class="tag">If someone asks you to explain it in one breath</div>
+        <p>"SynThera is an unsupervised similarity-ranking engine, a connectivity map. It scores 29,680 compounds against human exercise gene signatures with four methods, including the GSFM gene-set foundation model, merges them with Robust Rank Aggregation, and keeps approved drugs that copy exercise's adaptations rather than its stress."</p>
+      </div>
+    </section>
+
+    <!-- ============ ARCHITECTURE ============ -->
+    <section id="architecture">
+      <h2>The architecture in one picture</h2>
+      <p>Four layers. Data is downloaded once, a Python pipeline does all the heavy work on a laptop, the results are saved as files, and the website and video only display those files.</p>
+      <div class="arch" role="img" aria-label="Four layers: inputs, Python pipeline, result files, website and video">
+        <div class="layer">
+          <div class="lbl">1 · Inputs<span>downloaded once</span></div>
+          <div class="nodes">
+            <div class="node core">MoTrPAC human<small>exercise fingerprints</small></div>
+            <div class="node core">LINCS L1000<small>33 GB drug fingerprints</small></div>
+            <div class="node">Drug Repurposing Hub<small>approval, mechanism</small></div>
+            <div class="node">Hallmark + Reactome<small>pathway gene sets</small></div>
+            <div class="node">MoTrPAC rat<small>comparison only</small></div>
+            <div class="node ai">GSFM model<small>pretrained AI, Hugging Face</small></div>
+          </div>
+        </div>
+        <div class="down" aria-hidden="true"><svg viewBox="0 0 14 30"><path d="M7 2v24M2 21l5 6 5-6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div>
+        <div class="layer">
+          <div class="lbl">2 · Processing<span>Python, run in order</span></div>
+          <div class="nodes">
+            <div class="node">01 Build 18 fingerprints</div>
+            <div class="node">02 One fingerprint per drug</div>
+            <div class="node">03 Adaptive vs stress genes</div>
+            <div class="node core">04 Scoring engine<small>4 methods · RRA · benefit</small></div>
+            <div class="node">05 Validation</div>
+            <div class="node">06 Robustness + drug map</div>
+            <div class="node">07 Rat comparison</div>
+          </div>
+        </div>
+        <div class="down" aria-hidden="true"><svg viewBox="0 0 14 30"><path d="M7 2v24M2 21l5 6 5-6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div>
+        <div class="layer">
+          <div class="lbl">3 · Results<span>files in results/</span></div>
+          <div class="nodes">
+            <div class="node">scores_long.parquet<small>every drug × 18 fingerprints</small></div>
+            <div class="node">candidate lists (TSV)</div>
+            <div class="node">validation + robustness JSON</div>
+            <div class="node">08 FAIR JSON-LD</div>
+            <div class="node">figures</div>
+          </div>
+        </div>
+        <div class="down" aria-hidden="true"><svg viewBox="0 0 14 30"><path d="M7 2v24M2 21l5 6 5-6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div>
+        <div class="layer">
+          <div class="lbl">4 · Presentation<span>what people see</span></div>
+          <div class="nodes">
+            <div class="node core">09 Website<small>one HTML file, data inside</small></div>
+            <div class="node">10 Graphical abstract</div>
+            <div class="node">Pitch video<small>separate toolchain</small></div>
+          </div>
+        </div>
+      </div>
+      <div class="note"><p><strong>Nothing runs live.</strong> The scoring ran once and took about 29 minutes. The website is a single HTML file with the results baked in, so there is no server, no database, no login and no AI running in the browser. That is also why it can be opened by double-clicking.</p></div>
+    </section>
+
+    <!-- ============ ML ============ -->
+    <section id="ml">
+      <h2>What kind of machine learning is this?</h2>
+      <p><strong>It is not a tree model, and it is not a model trained to predict something.</strong> There is no train/test split and no accuracy score, and that is on purpose.</p>
+      <p>The closest family you already know is <strong>distance-based</strong>. Think of k-nearest neighbours: kNN finds the points closest to a new point. SynThera finds the drugs closest to exercise. The difference is what happens next. kNN uses the neighbours to vote on a label. For us, the ranked list of nearest drugs <em>is</em> the answer.</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Family you know</th><th>Used?</th><th>Where in SynThera</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Trees<br><span class="small">decision tree, random forest, XGBoost</span></td><td class="no">No</td><td>Nowhere. Nothing is trained to predict a label.</td></tr>
+            <tr><td class="k">Distance / similarity<br><span class="small">kNN, cosine, correlation</span></td><td class="yes">Yes, the core</td><td>All four scoring methods measure how close a drug's fingerprint is to exercise's fingerprint. Ranking by closeness is the main output.</td></tr>
+            <tr><td class="k">Neural networks</td><td class="yes">Yes, one</td><td>GSFM, a pretrained autoencoder, turns a list of genes into 256 numbers. We use it as published; we never trained it.</td></tr>
+            <tr><td class="k">Ensembles</td><td class="yes">Yes</td><td>Four scorers are combined with Robust Rank Aggregation. Like a voting ensemble, except the votes are ranks.</td></tr>
+            <tr><td class="k">Linear models</td><td class="yes">Upstream</td><td>MoTrPAC fitted a linear mixed model (called <code>dream</code>) for every gene to get its t-value, exercise versus rested controls. We downloaded those t-values. Our benefit index is a weighted sum, which is also linear.</td></tr>
+            <tr><td class="k">Dimensionality reduction<br><span class="small">PCA, UMAP</span></td><td class="yes">Yes, one picture</td><td>UMAP squeezes each drug's GSFM numbers into two dimensions for the drug map on the website.</td></tr>
+            <tr><td class="k">Statistics</td><td class="yes">Throughout</td><td>Permutation tests, Benjamini–Hochberg FDR and a bootstrap tell us how much to trust each rank.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Why not train a classifier?</h3>
+      <p>A classifier needs labelled examples: many drugs already known to mimic exercise and many known not to. That list barely exists. There are a handful of proposed "exercise pills" (AICAR, GW-501516, metformin, resveratrol), most discovered in mice or rats, against 29,680 compounds. A model trained on four positives would memorise them and tell us nothing new.</p>
+      <p>Connectivity mapping needs no labels, only the two kinds of fingerprints. It is the standard method for finding new uses for drugs from gene expression (the Connectivity Map, Lamb et al., <em>Science</em> 2006; LINCS L1000, Subramanian et al., <em>Cell</em> 2017). Instead of a test set, we check the result with <strong>controls</strong>: drugs whose effect we already know (see <a href="#trust">How we know it works</a>).</p>
+      <h3>So where is the AI?</h3>
+      <p>In two places. <strong>GSFM</strong>, a pretrained neural network, is one of the four scorers. Using a model someone else trained on a much bigger dataset is called <strong>transfer learning</strong>, the same idea as using a pretrained image model to get image features. And the overall design is an <strong>ensemble</strong>: four different scorers vote, so no single method decides.</p>
+    </section>
+
+    <!-- ============ GSFM ============ -->
+    <section id="gsfm">
+      <h2>GSFM, explained from zero</h2>
+      <p><strong>GSFM stands for Gene Set Foundation Model.</strong> It was built by the Ma'ayan Lab at Mount Sinai (Clarke, Marino and Ma'ayan, <em>Patterns</em> 2026) and is published on Hugging Face as <code>maayanlab/gsfm-rummagene</code>. "Foundation" means the same as in "foundation language model": trained once on a large body of data so that other people can reuse it.</p>
+      <p>It is <strong>not</strong> a chatbot and does not read text. It does one thing: it turns a list of genes into 256 numbers that describe what the list is about.</p>
+
+      <h3>What it learned from</h3>
+      <p>Rummagene, a large collection of gene sets that the same lab mined from the supplementary tables of published papers. A gene set is just a list of genes a study reported together, for example "genes that rose in muscle after training". Across a huge number of such lists, genes that work together keep turning up together. That is the pattern GSFM learns.</p>
+
+      <h3>How it is built</h3>
+      <p class="small">Layer sizes below were read from the downloaded model file.</p>
+      <div class="fig">
+        <svg viewBox="0 0 760 316" role="img" aria-label="GSFM autoencoder: 19,589 gene inputs, encoder layers of 512 and 256, a 256-number embedding, decoder back to 19,589 genes">
+          <path class="br e" d="M42 40v-8h354v8"/>
+          <text class="t3" x="219" y="22" text-anchor="middle">ENCODER · WHAT WE USE</text>
+          <path class="br" d="M512 40v-8h204v8"/>
+          <text class="t2" x="614" y="22" text-anchor="middle">DECODER · TRAINING ONLY</text>
+          <polygon class="fan" points="78,52 210,104 210,206 78,256"/>
+          <polygon class="fan" points="246,104 360,124 360,186 246,206"/>
+          <polygon class="fan dec" points="396,124 510,124 510,186 396,186"/>
+          <polygon class="fan dec" points="546,124 680,52 680,256 546,186"/>
+          <rect class="bar" x="42" y="52" width="36" height="204" rx="4"/>
+          <rect class="bar" x="210" y="104" width="36" height="102" rx="4"/>
+          <rect class="bar emb" x="360" y="124" width="36" height="62" rx="4"/>
+          <rect class="bar dec" x="510" y="124" width="36" height="62" rx="4"/>
+          <rect class="bar dec" x="680" y="52" width="36" height="204" rx="4"/>
+          <text class="t1" x="60" y="280" text-anchor="middle">19,589</text>
+          <text class="t2" x="60" y="298" text-anchor="middle">genes in (0/1)</text>
+          <text class="t1" x="228" y="280" text-anchor="middle">512</text>
+          <text class="t2" x="228" y="298" text-anchor="middle">hidden layer</text>
+          <text class="t1" x="378" y="280" text-anchor="middle">256</text>
+          <text class="t3" x="378" y="298" text-anchor="middle">EMBEDDING</text>
+          <text class="t1" x="528" y="280" text-anchor="middle">256</text>
+          <text class="t2" x="528" y="298" text-anchor="middle">hidden layer</text>
+          <text class="t1" x="698" y="280" text-anchor="middle">19,589</text>
+          <text class="t2" x="698" y="298" text-anchor="middle">genes rebuilt</text>
+        </svg>
+        <div class="cap">Bar heights are drawn for shape, not to scale. 15.26 million parameters, a 61 MB file.</div>
+      </div>
+      <ul>
+        <li><strong>Input:</strong> 19,589 slots, one per gene in its vocabulary. A gene list becomes a row of 1s (gene is in the list) and 0s (it is not). This is called multi-hot encoding.</li>
+        <li><strong>Encoder:</strong> 19,589 → 512 → 256. Each arrow is a fully connected layer with a ReLU activation, and 20% dropout during training.</li>
+        <li><strong>Embedding:</strong> the 256 numbers in the middle. This is the model's compressed summary of the gene list, and the only part we use.</li>
+        <li><strong>Decoder:</strong> 256 → 256 → 19,589. It tries to rebuild the original list from the 256 numbers. It is only needed while training.</li>
+      </ul>
+      <p>This design is an <strong>autoencoder</strong>: a network trained to squeeze its input through a narrow middle and rebuild it on the other side. It needs no labels, which is called <strong>self-supervised learning</strong>. To rebuild a gene list from only 256 numbers, the model has to learn which genes travel together. So two lists about the same biology land close together even when they share few exact genes. The authors describe it as a denoising autoencoder.</p>
+      <div class="note"><p><strong>Analogy:</strong> word embeddings give "doctor" and "nurse" similar vectors because the words appear in similar sentences. GSFM does the same for genes and gene lists.</p></div>
+
+      <h3>How we used it</h3>
+      <ol>
+        <li>For every drug, take its <strong>100 most-raised</strong> and <strong>100 most-lowered</strong> genes and embed each list. That gives two vectors of 256 numbers per drug, 59,360 embeddings in total. This was done once and saved (<code>gsfm_drug_up.npy</code>, <code>gsfm_drug_dn.npy</code> in <code>data/processed</code>).</li>
+        <li>For each exercise fingerprint, embed its up list and its down list (up to 150 genes each).</li>
+        <li>Subtract the average drug embedding from every vector (centering), so the score measures what is specific to each list rather than what all lists share.</li>
+        <li>Score = similarity(drug up, exercise up) + similarity(drug down, exercise down) − similarity(drug up, exercise down) − similarity(drug down, exercise up).</li>
+      </ol>
+      <p>Similarity here is <strong>cosine similarity</strong>: 1 means the two vectors point the same way, 0 means unrelated, −1 means opposite. A high score means the drug raises what exercise raises and lowers what exercise lowers, judged by biological meaning rather than exact gene names. 97.1% of the L1000 genes are in GSFM's vocabulary, so almost nothing is lost.</p>
+      <p>The same embeddings also draw the <strong>drug map</strong> on the website: UMAP places all 29,680 drugs in 2-D so that drugs with similar effects sit near each other.</p>
+
+      <h3>Did it actually help?</h3>
+      <p>Yes, measurably. We re-ran the merge with one method left out each time and compared the top 50 with the full result (Jaccard overlap, 1 = identical):</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Configuration</th><th>Top-50 overlap with full result</th><th>Known exercise-like drugs, average percentile (lower = better)</th></tr></thead>
+          <tbody class="num">
+            <tr><td>All four methods</td><td>1.00</td><td>47.8</td></tr>
+            <tr><td>Without GSFM</td><td><strong>0.62</strong></td><td>50.8</td></tr>
+            <tr><td>Without the classic CMap score</td><td>0.64</td><td>49.4</td></tr>
+            <tr><td>Without XSum</td><td>0.77</td><td>47.3</td></tr>
+            <tr><td>GSFM alone</td><td>0.38</td><td><strong>41.6</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Removing GSFM changes the top 50 more than removing any other method, and GSFM alone ranks the known exercise-like drugs best. We still combine all four so that no single method decides.</p>
+      <div class="note"><p><strong>Reading the 0.62 correctly.</strong> Jaccard = drugs in both lists ÷ drugs in either list. The website shows this as a "38% drop in top-50 overlap" (1 − 0.62, called the Jaccard distance), and the pitch video says "changes 38 percent of the top fifty". Both describe the same measurement. In plain drug counts, about 38 of the 50 drugs stay and 12 are replaced.</p></div>
+    </section>
+
+    <!-- ============ DATA ============ -->
+    <section id="data">
+      <h2>The datasets</h2>
+      <p><strong>Six datasets and one pretrained model.</strong> About 1.1 GB of downloaded inputs in <code>data/raw</code>, 1.8 GB of processed files in <code>data/processed</code>, plus the 33 GB LINCS matrix, which lives on drive E because of its size.</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>#</th><th>Dataset</th><th>What it gives us</th><th>Scale</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td class="num">1</td><td class="k">MoTrPAC human<br><span class="small">release human-precovid-sed-adu c2.0</span></td><td>Gene changes after one workout versus a rested control group, in 175 sedentary adults (206 were randomised; COVID-19 stopped the trial). Muscle, blood and fat. Cycling and weights. Early, 3.5–4 h and 24 h after.</td><td>3 tables: blood 295 MB, fat 184 MB, muscle 152 MB</td><td>Main input: the exercise fingerprints</td></tr>
+            <tr><td class="num">2</td><td class="k">CMap LINCS 2020 L1000<br><span class="small">Level 5 compound signatures</span></td><td>Gene changes in human cell lines (mostly cancer lines) treated with compounds</td><td>33 GB: 720,216 signatures × 12,328 genes, plus 465 MB of metadata</td><td>Main input: the drug fingerprints</td></tr>
+            <tr><td class="num">3</td><td class="k">Drug Repurposing Hub<br><span class="small">2020-03-24</span></td><td>Approval status, mechanism, targets and uses for each drug</td><td>2 small tables; 1,595 approved drugs match LINCS</td><td>Filters and labels</td></tr>
+            <tr><td class="num">4</td><td class="k">MSigDB Hallmark 2020</td><td>50 well-curated biological pathways</td><td>66 KB</td><td>Adaptive and stress gene modules</td></tr>
+            <tr><td class="num">5</td><td class="k">Reactome 2022</td><td>Detailed pathways, including mitochondrial biogenesis and the PGC-1α programme</td><td>1 MB</td><td>Adaptive gene module</td></tr>
+            <tr><td class="num">6</td><td class="k">MoTrPAC rat<br><span class="small">endurance training, PASS1B</span></td><td>Rat gene changes after 1–8 weeks of training, plus a rat-to-human gene map</td><td>4 tissue files, about 30 MB</td><td>Comparison arm only</td></tr>
+            <tr><td class="num">+</td><td class="k">GSFM weights</td><td>The pretrained AI model</td><td>61 MB, fetched from Hugging Face on first run</td><td>Fourth scoring method</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">The empty <code>data/raw/metamex</code> folder is left over from planning. MetaMEx was considered and turned out not to be needed.</p>
+    </section>
+
+    <!-- ============ FEATURES ============ -->
+    <section id="features">
+      <h2>How the features in each dataset are used</h2>
+      <p>In ML terms every dataset is a table of rows and columns. Here is what a row is, which columns matter, and what we do with them.</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Table</th><th>One row is</th><th>Columns that matter</th><th>What we do with them</th></tr></thead>
+          <tbody>
+            <tr><td class="k">MoTrPAC results</td><td>One gene in one exercise × tissue × time group (14,259 genes in muscle, 15,278 in blood, 16,157 in fat)</td><td>Gene ID, <strong>t-statistic</strong> (signed strength of the change versus controls), <strong>FDR</strong> (p-value corrected for testing thousands of genes)</td><td>Convert Ensembl IDs to Entrez IDs. Keep t as the fingerprint. FDR &lt; 0.05 decides which genes count as changed. The top 150 up and 150 down become the query lists.</td></tr>
+            <tr><td class="k">LINCS L1000</td><td>One experiment: one compound, dose, cell line and time (720,216 rows)</td><td>12,328 gene z-scores</td><td>Keep 136,460 "exemplar" experiments and 10,174 reliable genes (978 measured directly + 9,196 well inferred). Merge each compound's experiments into one fingerprint with MODZ, a weighted average that trusts consistent replicates more. Result: a 29,680 × 10,174 matrix.</td></tr>
+            <tr><td class="k">LINCS metadata</td><td>One experiment, compound, cell line or gene</td><td>Compound name, cell line, exemplar flag, gene type</td><td>Which rows to keep, how to merge IDs, and how many cell lines each drug was tested in.</td></tr>
+            <tr><td class="k">Repurposing Hub</td><td>One drug</td><td>Clinical phase, mechanism of action, targets, disease area</td><td>Not scored. Used afterwards as filters: is it approved, and is its mechanism a cell-killing one?</td></tr>
+            <tr><td class="k">Gene sets</td><td>One pathway</td><td>Its member genes</td><td>Group genes into adaptive (701), stress (872) and ambiguous (362) modules.</td></tr>
+            <tr><td class="k">GSFM</td><td>n/a</td><td>n/a</td><td>Creates new, learned features: 256 numbers per gene list.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>The feature choices that matter</h3>
+      <ul>
+        <li><strong>Feature selection:</strong> only genes present in both datasets are compared: 8,975 genes for muscle and blood, 9,541 for fat.</li>
+        <li><strong>Query size:</strong> up to 150 genes per direction (the CMap convention is 10–150). If fewer than 15 genes are significant in either direction, the fingerprint falls back to the top 50 by size of change and is marked weak.</li>
+        <li><strong>Drug lists:</strong> each drug's 100 most-raised and 100 most-lowered genes, used by XSum and GSFM.</li>
+        <li><strong>Scaling:</strong> there is no normal feature scaling. The fairness step is the null standardisation: each drug is compared with its own scores against 200 random fingerprints (explained below).</li>
+        <li><strong>Metadata are filters, not inputs:</strong> approval, mechanism and number of cell lines are applied after scoring, so they cannot bias the scores.</li>
+      </ul>
+
+      <h3>The 18 exercise fingerprints</h3>
+      <p>2 exercise types × 3 tissues × 3 times = 18 fingerprints. Numbers are genes significantly up / down (FDR &lt; 0.05). The 10 shaded cells have enough signal and drive the candidate lists; the striped ones are kept for exploration only.</p>
+      <div class="fp">
+        <div class="fpg">
+          <h4>Cycling (endurance)</h4>
+          <table>
+            <thead><tr><th></th><th>Early</th><th>3.5–4 h</th><th>24 h</th></tr></thead>
+            <tbody>
+              <tr><td>Muscle</td><td><span class="cell ok">558 / 299</span></td><td><span class="cell ok">1130 / 987</span></td><td><span class="cell ok">803 / 449</span></td></tr>
+              <tr><td>Blood</td><td><span class="cell ok">564 / 221</span></td><td><span class="cell ok">1619 / 645</span></td><td><span class="cell weak">0 / 0</span></td></tr>
+              <tr><td>Fat</td><td><span class="cell weak">40 / 13</span></td><td><span class="cell weak">1 / 2</span></td><td><span class="cell weak">1 / 1</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="fpg">
+          <h4>Weights (resistance)</h4>
+          <table>
+            <thead><tr><th></th><th>Early</th><th>3.5–4 h</th><th>24 h</th></tr></thead>
+            <tbody>
+              <tr><td>Muscle</td><td><span class="cell ok">563 / 207</span></td><td><span class="cell ok">2390 / 2610</span></td><td><span class="cell ok">1732 / 1493</span></td></tr>
+              <tr><td>Blood</td><td><span class="cell ok">1803 / 609</span></td><td><span class="cell ok">2268 / 1214</span></td><td><span class="cell weak">2 / 1</span></td></tr>
+              <tr><td>Fat</td><td><span class="cell weak">23 / 8</span></td><td><span class="cell weak">9 / 18</span></td><td><span class="cell weak">0 / 0</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="legend"><span><i style="background:color-mix(in srgb, var(--teal) 16%, var(--surface))"></i>informative (at least 15 genes each way)</span><span><i style="background:repeating-linear-gradient(-45deg, var(--sunk) 0 3px, var(--surface) 3px 6px); border:1px solid var(--line)"></i>weak, exploratory</span><span>"Early" = 15 min muscle, 30 min blood, 45 min fat</span></div>
+    </section>
+
+    <!-- ============ PIPELINE ============ -->
+    <section id="pipeline">
+      <h2>The pipeline, step by step</h2>
+      <p>Ten Python scripts in <code>pipeline/</code>, run in order. Shared code lives in <code>src/tejas/</code>: <code>config.py</code> holds every path and parameter, <code>scoring.py</code> the four methods and the rank merge, <code>gsfm_embed.py</code> the GSFM wrapper, and <code>candidates.py</code> the shortlist rule.</p>
+      <ol class="steps">
+        <li><span class="n">01</span><div><h4>Build the exercise fingerprints <code>01_build_signatures.py</code></h4><p>Reads the three MoTrPAC tables and makes 18 fingerprints: a t-value per gene for each exercise × tissue × time.</p><div class="io">MoTrPAC tables → signatures_long.parquet, signature_summary.csv</div></div></li>
+        <li><span class="n">02</span><div><h4>One fingerprint per drug <code>02_lincs_consensus.py</code></h4><p>Reads the 33 GB file once, after checking it is intact (file size plus the first, last and 20 random signatures). Keeps exemplar experiments and the 10,174 reliable genes, merges each compound's experiments with MODZ, and adds approval and mechanism from the Repurposing Hub. The only step that needs the 33 GB file.</p><div class="io">33 GB .gctx (720,216 signatures) → lincs_consensus_z.npy (29,680 × 10,174), compounds.parquet</div></div></li>
+        <li><span class="n">03</span><div><h4>Adaptive versus stress genes <code>03_gene_modules.py</code></h4><p>Sorts genes into the good adaptations of exercise, its stress response, and an ambiguous group that is left out.</p><div class="io">Hallmark + Reactome → gene_class.parquet (701 / 872 / 362)</div></div></li>
+        <li><span class="n">04</span><div><h4>The scoring engine <code>04_score.py</code></h4><p>Scores every drug against every fingerprint with four methods, makes the scores fair, merges them, tests significance and computes the benefit index. About 29 minutes on a 6-core laptop. Detailed in the next section.</p><div class="io">fingerprints + drug matrix + GSFM → scores_long.parquet, overall.parquet</div></div></li>
+        <li><span class="n">05</span><div><h4>Validation <code>05_validate.py</code></h4><p>Positive and negative control drugs, permutation summaries, and how much the methods and fingerprints agree.</p><div class="io">→ validation.json, figures</div></div></li>
+        <li><span class="n">06</span><div><h4>Robustness and the drug map <code>06_robustness.py</code></h4><p>Leave-one-method-out tests, a noise test with 30 reruns per fingerprint, and the UMAP drug map from GSFM embeddings.</p><div class="io">→ robustness.json</div></div></li>
+        <li><span class="n">07</span><div><h4>Rat comparison <code>07_rat_comparison.py</code></h4><p>Runs the identical scoring on rat training data, after converting rat genes to their human equivalents.</p><div class="io">→ rat_comparison.json</div></div></li>
+        <li><span class="n">08</span><div><h4>FAIR export <code>08_fair_export.py</code></h4><p>Writes the candidate lists, ranking tables and a JSON-LD file (schema.org / Bioschemas) with provenance and licences, so other tools can find and reuse the results.</p><div class="io">→ candidates_*.tsv, ranking_*.tsv, exercise_mimetic_atlas.jsonld</div></div></li>
+        <li><span class="n">09</span><div><h4>Build the website <code>09_export_website.py</code></h4><p>Packs the results into JSON and pastes them into the website template.</p><div class="io">results/ + template.html → website/index.html</div></div></li>
+        <li><span class="n">10</span><div><h4>Graphical abstract <code>10_graphical_abstract.py</code></h4><p>The one-image summary of the project.</p><div class="io">→ results/figures</div></div></li>
+      </ol>
+      <p class="small">Fixed settings in <code>config.py</code>: FDR cut-off 0.05, query size 150, minimum 15, drug list size 100, 200 random fingerprints, random seed 19 everywhere so every run gives the same answer.</p>
+    </section>
+
+    <!-- ============ SCORING ============ -->
+    <section id="scoring">
+      <h2>Inside the scoring engine</h2>
+      <p>This is step 04, the part that does the actual matching. It repeats the same flow for each of the 18 fingerprints.</p>
+      <div class="engine" role="img" aria-label="Scoring flow: exercise and drug fingerprints feed four methods, scores are standardised, merged with RRA, then split into match rank and benefit index, which feed the candidate rule">
+        <div class="row2">
+          <div class="box"><b>Exercise fingerprint</b><p>Top ≤150 up and ≤150 down genes, with their t-values</p></div>
+          <div class="box"><b>Drug fingerprints</b><p>29,680 drugs × 10,174 genes, plus each drug's top 100 up / down</p></div>
+        </div>
+        <div class="down" aria-hidden="true"><svg viewBox="0 0 14 30"><path d="M7 2v24M2 21l5 6 5-6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div>
+        <div class="row4">
+          <div class="box m"><b>Classic CMap</b><p>WTCS</p></div>
+          <div class="box m"><b>Rank correlation</b><p>Spearman</p></div>
+          <div class="box m"><b>Extreme genes</b><p>XSum</p></div>
+          <div class="box m ai"><b>AI model</b><p>GSFM cosine</p></div>
+        </div>
+        <div class="down" aria-hidden="true"><svg viewBox="0 0 14 30"><path d="M7 2v24M2 21l5 6 5-6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div>
+        <div class="box"><b>Make it fair</b><p>Each drug's score is compared with its own scores against 200 random fingerprints</p></div>
+        <div class="down" aria-hidden="true"><svg viewBox="0 0 14 30"><path d="M7 2v24M2 21l5 6 5-6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div>
+        <div class="box"><b>Merge the four votes</b><p>Robust Rank Aggregation → one rank per drug, plus a p-value and FDR</p></div>
+        <div class="down" aria-hidden="true"><svg viewBox="0 0 14 30"><path d="M7 2v24M2 21l5 6 5-6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div>
+        <div class="row2">
+          <div class="box"><b>How strongly does it match?</b><p>Overall match rank per exercise type, merged across the 10 informative fingerprints</p></div>
+          <div class="box good"><b>Is it the good kind of match?</b><p>Benefit index = agreement on adaptive genes − agreement on stress genes</p></div>
+        </div>
+        <div class="down" aria-hidden="true"><svg viewBox="0 0 14 30"><path d="M7 2v24M2 21l5 6 5-6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div>
+        <div class="box out"><b>Candidate rule → 82 drugs for cycling, 77 for weights</b><p>Approved · top 5% match · not cell-killing · tested in ≥3 cell lines · ranked by benefit</p></div>
+      </div>
+
+      <h3>The four scorers</h3>
+      <div class="judges">
+        <div class="judge"><div class="code">WTCS</div><h4>Classic CMap score</h4><p>Sort the drug's genes from most raised to most lowered and walk down the list. Do exercise's up genes bunch at the top and its down genes at the bottom? A weighted Kolmogorov–Smirnov statistic measures the bunching. This is the method of the original Connectivity Map; our fast version matches the slow textbook version to within 3×10⁻⁷.</p></div>
+        <div class="judge"><div class="code">Spearman</div><h4>Rank correlation</h4><p>Rank the 978 directly measured "landmark" genes by how much exercise changed them, then by how much the drug changed them. Do the two orders agree?</p></div>
+        <div class="judge"><div class="code">XSum</div><h4>Extreme genes</h4><p>Take the drug's 100 most-raised genes and add up exercise's t-values for them. Do the same for its 100 most-lowered genes and subtract.</p></div>
+        <div class="judge ai"><div class="code">GSFM</div><h4>AI model</h4><p>Embed the gene lists of both and compare their meaning with cosine similarity, as described in <a href="#gsfm">GSFM from zero</a>.</p></div>
+      </div>
+      <p>For every method a positive score means "the drug moves genes the way exercise does" and a negative score means "the drug does the opposite".</p>
+
+      <h3>Making scores fair: null standardisation</h3>
+      <p>Some compounds change thousands of genes strongly, so they score high against almost anything. To stop them winning everywhere, we build <strong>200 fake exercise fingerprints</strong> for each real one by shuffling which gene got which t-value. Every drug is scored against all of them. Each real score is then expressed as "how many standard deviations above this drug's own random scores". A drug that matches everything gets no credit for matching exercise.</p>
+      <p>Scale: 29,680 drugs × 18 fingerprints × 201 versions (1 real + 200 random) × 4 methods ≈ <strong>430 million scores</strong>. That is why step 04 takes about half an hour.</p>
+
+      <h3>Merging the four votes: Robust Rank Aggregation</h3>
+      <p>Each method gives every drug a rank. RRA (Kolde et al., 2012) looks at a drug's four ranks and asks: if these ranks were random, how unlikely is it to rank this well this consistently? It computes that probability with the beta distribution and multiplies by 4 to account for looking at four methods. The result is called ρ (rho); smaller is better. Ties are broken by the average of the four ranks. "Robust" means one method's odd vote cannot drag a drug up or down on its own.</p>
+      <p>For significance, the same merge is run on the 200 random fingerprints. Comparing a drug's real ρ with that pool gives its p-value, which is then corrected for testing 29,680 drugs with the Benjamini–Hochberg FDR. A second RRA across the 10 informative fingerprints gives each drug one overall rank for cycling and one for weights.</p>
+
+      <h3>Good match or just stress? The benefit index</h3>
+      <p>The first plain ranking exposed a problem: <strong>8 of the top 15 matches for cycling were cell-killing drugs</strong>. A hard workout and a toxic drug both set off the same alarm genes in cells. So genes are sorted into three modules:</p>
+      <div class="mods">
+        <div class="mod a"><div class="t">Adaptive</div><div class="c">701</div><p>Oxidative phosphorylation, fatty-acid metabolism, peroxisome, muscle growth, new blood vessels, mTORC1, mitochondrial biogenesis, the PGC-1α programme</p></div>
+        <div class="mod s"><div class="t">Stress</div><div class="c">872</div><p>TNF-α / NF-κB, inflammation, IL-6 / JAK / STAT3, interferon-γ, complement, apoptosis, p53, unfolded protein response</p></div>
+        <div class="mod x"><div class="t">Ambiguous, left out</div><div class="c">362</div><p>Hypoxia, reactive oxygen species, and immediate-early genes such as FOS, JUN, EGR1, ATF3 and NR4A1</p></div>
+      </div>
+      <p>For each drug, its agreement with exercise on the adaptive genes and on the stress genes is turned into a z-score. <strong>Benefit index = adaptive z − stress z.</strong> A positive value means the drug copies more of exercise's good side than its stress.</p>
+
+      <h3>The candidate rule</h3>
+      <ol>
+        <li><strong>Approved:</strong> clinical phase "Launched" in the Repurposing Hub.</li>
+        <li><strong>Strong match:</strong> in the top 5% of all 29,680 compounds overall, about the top 1,484.</li>
+        <li><strong>Not cell-killing:</strong> mechanism is not tubulin, proteasome, topoisomerase, alkylating, HDAC, PKC-activator, cardiac glycoside or a similar generic-stress class.</li>
+        <li><strong>Enough evidence:</strong> tested in at least 3 cell lines.</li>
+      </ol>
+      <p>The survivors are ranked by mean benefit index, giving <strong>82 candidates for cycling and 77 for weights</strong>. Drugs that fail a rule stay in the tables with a flag rather than being silently deleted.</p>
+    </section>
+
+    <!-- ============ EXAMPLE ============ -->
+    <section id="example">
+      <h2>One drug, followed through</h2>
+      <p><strong>Sitagliptin</strong>, a type 2 diabetes drug, is candidate #1 for cycling. Here is why, using its row in <code>results/candidates_endurance.tsv</code>.</p>
+      <dl class="facts">
+        <div><dt>Overall match</dt><dd>Rank 227 of 29,680<span>top 0.8%, inside the top-5% cut</span></dd></div>
+        <div><dt>Best fingerprint</dt><dd>Rank 49<span>muscle, 3.5 h after cycling</span></dd></div>
+        <div><dt>Significant in</dt><dd>3 fingerprints<span>FDR &lt; 0.05</span></dd></div>
+        <div><dt>Approved</dt><dd>Yes, Launched<span>DPP-4 inhibitor, target DPP4</span></dd></div>
+        <div><dt>Cell-killing flag</dt><dd>No<span>mechanism is not a stress class</span></dd></div>
+        <div><dt>Evidence</dt><dd>16 cell lines<span>rule needs at least 3</span></dd></div>
+        <div><dt>Benefit index</dt><dd>+0.78<span>adaptive z 3.02, stress z 2.23</span></dd></div>
+        <div><dt>Result</dt><dd>Candidate #1<span>highest benefit among cycling candidates</span></dd></div>
+      </dl>
+      <p class="small">"Candidate" means worth testing in human muscle cells. It does not mean sitagliptin works as an exercise pill.</p>
+    </section>
+
+    <!-- ============ TRUST ============ -->
+    <section id="trust">
+      <h2>How we know it works</h2>
+      <p>With no test set, trust comes from checks whose answer we know in advance.</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Check</th><th>What we did</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Negative control</td><td>Weight training builds muscle through mTOR, so mTOR blockers (sirolimus, everolimus, torin-1, torin-2) should look like anti-exercise.</td><td><span class="yes">Strong pass.</span> Against muscle 24 h after weights they average the top 0.4% of opposing drugs (p = 5×10⁻⁵); sirolimus is in the top 0.1%.</td></tr>
+            <tr><td class="k">Positive controls</td><td>Drugs proposed as exercise mimics.</td><td>Mixed. β2-agonists (formoterol, clenbuterol, salbutamol) are recovered for weights at modest significance. GW-501516 reaches the top 9–12% in muscle; metformin and AICAR do not.</td></tr>
+            <tr><td class="k">Noise test</td><td>Scramble 20% of the gene values, rerun 30 times per fingerprint.</td><td>Top-50 approved lists overlap 48–77% (Jaccard) with the original, versus about 2% by chance. In plain counts, about 32–44 of the 50 drugs stay. The video's "48 to 77 percent survived" refers to this overlap.</td></tr>
+            <tr><td class="k">Leave one method out</td><td>Merge with three methods instead of four.</td><td>Every method changes the result; GSFM changes it most.</td></tr>
+            <tr><td class="k">Method agreement</td><td>Correlation between the four methods' rankings.</td><td>0.46–0.65: they agree but are not copies of each other.</td></tr>
+            <tr><td class="k">Human vs rat</td><td>The identical pipeline on rat training data.</td><td>Ranking correlation −0.20, <strong>0 of the top 100</strong> shared, 36% of significant rat genes lost in conversion to human genes.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Limits to say out loud</h3>
+      <ul>
+        <li>The human data cover <strong>one exercise session</strong>, not months of training. The 12-week MoTrPAC arm was halted by COVID-19 and is not public.</li>
+        <li>LINCS profiles come from <strong>cancer cell lines, not muscle</strong>. Candidates must be tested in human muscle cells.</li>
+        <li>The rat comparison mixes species with weeks-versus-one-session effects. Against the human 24 h fingerprint the correlation is 0.21.</li>
+        <li>Fat and 24 h blood fingerprints are weak and exploratory.</li>
+        <li>Outputs are <strong>hypotheses for lab testing</strong>, not treatment advice.</li>
+      </ul>
+    </section>
+
+    <!-- ============ WEBSITE ============ -->
+    <section id="website">
+      <h2>How the website was built</h2>
+      <p>The whole site is <strong>one HTML file</strong>, <code>website/index.html</code> (6.3 MB). It contains the page, its code and every result it shows. There is no framework, no server and no database.</p>
+      <h3>How it is generated</h3>
+      <ol>
+        <li><code>website/template.html</code> (about 155 KB) holds the design and code, with an empty placeholder where the data goes: <code>const DATA = /*__DATA__*/null;</code></li>
+        <li>Step 09 (<code>pipeline/09_export_website.py</code>) reads the result files and chooses what to include: every approved drug, the top 100 for each fingerprint, the top 100 overall and the control drugs. It rounds numbers to keep the file small.</li>
+        <li>It writes that data as <code>website/data/results.json</code> (6.1 MB) and pastes the same JSON into the placeholder, producing <code>website/index.html</code>.</li>
+      </ol>
+      <p>If the science changes, re-run step 09 and the site updates. Nobody edits numbers in the page by hand.</p>
+      <h3>The stack</h3>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Part</th><th>Technology</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Structure and style</td><td>Hand-written HTML and CSS</td><td>Layout, light and dark themes, brand colours</td></tr>
+            <tr><td class="k">Logic</td><td>Plain JavaScript, no React or other framework</td><td>Explorer search, sort and filters, tabs, theme toggle</td></tr>
+            <tr><td class="k">Charts</td><td>The page's own SVG and canvas code</td><td>Volcano plot, control charts, drug map. No chart library.</td></tr>
+            <tr><td class="k">Animation</td><td>GSAP 3.13 with ScrollTrigger and SplitText</td><td>Scroll-linked story and text reveals</td></tr>
+            <tr><td class="k">Smooth scroll</td><td>Lenis 1.1.20</td><td>Smooth mouse-wheel scrolling on desktop</td></tr>
+            <tr><td class="k">3D</td><td>three.js 0.159 (WebGL)</td><td>The particle DNA in the opening scene</td></tr>
+            <tr><td class="k">Fonts</td><td>Geist and Geist Mono (Google Fonts)</td><td>Brand typography</td></tr>
+            <tr><td class="k">Data</td><td>JSON embedded in the page</td><td>Every number on the site</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The libraries and fonts load from public CDNs (jsDelivr and Google Fonts). The page checks whether each library arrived and skips that effect if not. So <strong>without internet</strong> the text, tables, charts and explorer still work; you lose the 3D scene, the scroll animations and the brand fonts.</p>
+      <h3>What is on the page, top to bottom</h3>
+      <ol>
+        <li><strong>Opening:</strong> 3D particle DNA and the five-step "how it works" story.</li>
+        <li><strong>Signature:</strong> scroll through one workout, gene by gene.</li>
+        <li><strong>Findings:</strong> five things the data showed.</li>
+        <li><strong>Candidates:</strong> the approved shortlist, with tabs for cycling and weights.</li>
+        <li><strong>Explorer:</strong> look up any drug in any of the 18 fingerprints; sort by best match, best good-versus-stress balance, or most opposite. Press <code>/</code> anywhere to search.</li>
+        <li><strong>Evidence:</strong> controls, permutations, the noise test and leave-one-method-out.</li>
+        <li><strong>Drug map:</strong> the UMAP of GSFM embeddings, with hover details.</li>
+        <li><strong>Rats vs people</strong>, <strong>limits</strong>, and <strong>methods, data and outputs</strong>.</li>
+      </ol>
+      <p class="small">The colour code is the same everywhere: copper = switched on / matches exercise, steel blue = switched off / opposes, teal = adaptation, amber = stress.</p>
+    </section>
+
+    <!-- ============ EXPLORER ============ -->
+    <section id="explorer">
+      <h2>Reading the explorer</h2>
+      <p>The explorer answers one question at a time: <strong>how much does this drug look like this one workout fingerprint?</strong> Every value below is what the site shows, taken from <code>results/scores_long.parquet</code>.</p>
+
+      <h3>What is on the screen</h3>
+      <ul>
+        <li><strong>Left, the fingerprint picker:</strong> Cycling or Weights at the top, then a grid of tissue × time boxes. Each box is one of the 18 fingerprints and shows how many genes changed. "Strong" boxes have enough signal; striped "weak" boxes don't. The box you pick decides every number in the table.</li>
+        <li><strong>Left, the fingerprint card:</strong> the genes exercise switched on most (copper) and off most (blue) in that fingerprint, plus how many genes were measured and changed.</li>
+        <li><strong>Right, the table:</strong> search (press <code>/</code>), "Approved only" and the sort menu. Ranks are always among all 29,680 compounds, even when only approved drugs are listed.</li>
+        <li><strong>Click a row</strong> to open the drug's facts, its good/stress split, how each of the four methods scored it, and a grid of its match in all 18 fingerprints.</li>
+      </ul>
+
+      <h3>Every field, using aspirin</h3>
+      <p class="small">Fingerprint picked: Cycling · Muscle · 3.5–4 h.</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Field</th><th>Aspirin shows</th><th>What it means</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Match</td><td class="num">top 79% · #23,462</td><td>Of 29,680 compounds ranked by likeness to this workout, aspirin is 23,462nd. Lower % is better. Candidates need the top 5% (about #1,484 or better).</td></tr>
+            <tr><td class="k">Good vs stress</td><td class="num">−0.5</td><td>The benefit index for this fingerprint. Negative means it leans a little more toward exercise's stress genes than its good adaptations. Near zero means a tiny effect either way.</td></tr>
+            <tr><td class="k">Confidence</td><td>None</td><td>From the significance test (FDR): High below 0.01, Good below 0.05, Weak below 0.2, None above. Aspirin's FDR is 1.0: no evidence it beats random gene lists.</td></tr>
+            <tr><td class="k">Cell types</td><td class="num">14</td><td>Number of cell lines the drug was tested in. 3 or more is required. With 14, "no match" is a well-supported answer.</td></tr>
+            <tr><td class="k">Used for, How it works, Targets, Status</td><td>headache, fever…; COX inhibitor; PTGS1, IKBKB, NFKB1…; Approved</td><td>Facts from the Drug Repurposing Hub. They describe the drug, so they never change with the fingerprint.</td></tr>
+            <tr><td class="k">Lab evidence</td><td>14 fingerprints from 14 cell types</td><td>The LINCS experiments that were merged into aspirin's one consensus fingerprint.</td></tr>
+            <tr><td class="k">Good / stress</td><td class="num">−0.33 / 0.11</td><td>The two halves of the benefit index. Good (adaptive z) −0.33: on adaptation genes aspirin moves slightly <em>against</em> exercise. Stress z +0.11: on stress genes it moves very slightly <em>with</em> exercise. These are z-scores across all drugs, so ±0.3 is small; sitagliptin's good score here is +3.98.</td></tr>
+            <tr><td class="k">How each method scored it</td><td class="num">74% · 85% · 52% · 73%</td><td>Each method's own rank (classic CMap, rank correlation, extreme genes, GSFM). A longer bar is better. All four agree aspirin is not a match, and the merge rewards only consistent agreement.</td></tr>
+            <tr><td class="k">Match across all 18 fingerprints</td><td>grid</td><td>Each cell is the drug's rank % in one fingerprint. Darker or copper = closer. Hover for the exact rank. Faded cells are weak fingerprints; ignore them.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Verdict: aspirin is unrelated to exercise at the gene level, which is the sensible answer. Being at the bottom of the match list does not make it anti-exercise: on the "Most opposite" sort it is only in the top 24%. Use that sort when you want real anti-exercise drugs, such as sirolimus on Weights · Muscle · 24 h.</p>
+      <p class="small">Rounding detail: the row shows −0.5 while −0.33 − 0.11 = −0.44. The exact value is −0.446; the row rounds it twice (to −0.45, then to one decimal).</p>
+
+      <h3>Four checks for any drug</h3>
+      <ol>
+        <li><strong>Match:</strong> top 5% or better?</li>
+        <li><strong>Confidence:</strong> High or Good?</li>
+        <li><strong>Good vs stress:</strong> positive, ideally well above +0.5?</li>
+        <li><strong>Grid:</strong> several dark cells across the muscle and blood fingerprints, not just one?</li>
+      </ol>
+      <p>Aspirin fails all four. Sitagliptin passes them, which is why it is candidate #1.</p>
+
+      <h3>What changes when you pick a different time</h3>
+      <p>Each box is a different gene list, so choosing 15 min or 24 h instead of 3.5–4 h asks the whole question again against a new fingerprint. Nothing is recalculated in the browser: step 04 already scored all 29,680 compounds against all 18 fingerprints, and the page switches to that fingerprint's saved results. Switching Cycling ↔ Weights or Muscle ↔ Blood ↔ Fat works the same way.</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Changes with the box you pick</th><th>Stays the same</th></tr></thead>
+          <tbody>
+            <tr><td>The fingerprint card: genes switched on and off, genes changed</td><td>Used for, how it works, targets, status</td></tr>
+            <tr><td>The order of the whole table</td><td>Lab evidence and cell types</td></tr>
+            <tr><td>Each drug's match %, rank, good vs stress and confidence</td><td>The 18-fingerprint grid, which already shows every box. The row's match % always equals the grid cell for the box you picked.</td></tr>
+            <tr><td>The four method bars, and their label "How each method scored it (…)"</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>The three times tell different stories</h3>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Cycling · Muscle</th><th>Genes up / down</th><th>Top switched-on genes</th><th>What the muscle is doing</th></tr></thead>
+          <tbody>
+            <tr><td class="k">15 min</td><td class="num">558 / 299</td><td>CX3CL1, TCIM, APOLD1, NEDD9, ADAMTS1</td><td>First alarm: fast signalling and blood-vessel genes</td></tr>
+            <tr><td class="k">3.5–4 h</td><td class="num">1,130 / 987</td><td>PPARGC1A, PRKAG2, GNPDA1, FLCN</td><td>Peak response: PGC-1α, the master switch for new mitochondria, and the AMPK energy sensor</td></tr>
+            <tr><td class="k">24 h</td><td class="num">803 / 449</td><td>ACSL1, MRPS12, COX7A2, MPC1</td><td>Rebuilding: fat burning and mitochondrial machinery</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>One drug across the three times</h3>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Cycling · Muscle</th><th>15 min</th><th>3.5–4 h</th><th>24 h</th></tr></thead>
+          <tbody class="num">
+            <tr><td class="k">Sitagliptin match</td><td>top 1.4% (#421)</td><td>top 0.17% (#49)</td><td>top 81% (#24,113)</td></tr>
+            <tr><td class="k">Confidence</td><td>Good</td><td>High</td><td>None</td></tr>
+            <tr><td class="k">Good vs stress</td><td>+2.4 (good 4.75, stress 2.33)</td><td>−1.1 (good 3.98, stress 5.10)</td><td>+1.0 (good −1.33, stress −2.33)</td></tr>
+            <tr><td class="k">Methods: CMap · rank · extreme · GSFM</td><td>1.7 · 1.9 · 1.7 · 5.2%</td><td>2.0 · 1.9 · 2.1 · 0.40%</td><td>94 · 96 · 88 · 22%</td></tr>
+            <tr><td class="k">Aspirin match</td><td>top 56% (#16,633)</td><td>top 79% (#23,462)</td><td>top 55% (#16,463)</td></tr>
+            <tr><td class="k">Aspirin confidence · good vs stress</td><td>None · −0.5</td><td>None · −0.5</td><td>None · −0.3</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul>
+        <li><strong>A drug can copy some phases and not others.</strong> Sitagliptin copies the first alarm and the peak strongly, and the 24 h rebuilding phase not at all. A drug in a dish gives one snapshot, while exercise unfolds over a day.</li>
+        <li><strong>Good vs stress can flip.</strong> At 3.5 h sitagliptin copies even more of the stress genes (5.10) than the good ones (3.98), so its benefit dips below zero there. At 15 min it is strongly positive.</li>
+        <li><strong>The methods can disagree.</strong> At 24 h, three methods say no match while GSFM still places sitagliptin in the top 22%. That is why four methods vote.</li>
+        <li><strong>So no decision is made from one box.</strong> The candidate list uses the overall rank across the 5 informative cycling fingerprints (muscle at three times, blood at two), where sitagliptin is #227 (top 0.8%). Its benefit averages +0.78 across them (+2.42, −1.12 and +1.01 in muscle; +1.51 and +0.11 in blood).</li>
+        <li><strong>Aspirin stays flat at every time:</strong> mid-table or worse, never significant. Consistent "nothing here" is also a clear answer.</li>
+      </ul>
+
+      <h3>The stress trap, live on the site</h3>
+      <p>Pick Cycling · Muscle · 15 min or 3.5–4 h, keep "Approved only" on, and look at the top of the list: ingenol, vincristine, vinorelbine and vinblastine. Vincristine, vinorelbine and vinblastine are cancer drugs that block tubulin and kill dividing cells; ingenol activates PKC. The site tags them "cell-stress drug". They match the workout because cell damage sets off the same alarm genes. The candidate rule removes exactly these mechanisms, which is why the shortlist starts with sitagliptin, the fourth approved drug on the 3.5 h list. At 24 h the top of the list is completely different (phensuximide, propylthiouracil, topiramate). This makes a good live demo of why the benefit index exists.</p>
+    </section>
+
+    <!-- ============ RUN ============ -->
+    <section id="run">
+      <h2>Running the website for a demo</h2>
+      <p>You don't need Python, Node or any install to show the website. It is one file. Pick one of these.</p>
+      <div class="opts">
+        <div class="opt">
+          <div class="t">Option 1 · simplest</div>
+          <h4>Open the file</h4>
+          <ol>
+            <li>Open File Explorer and go to <code>D:\Tejas\website</code>. Teammates: the <code>TEJAS019\website</code> folder wherever they extracted the zips.</li>
+            <li>Double-click <code>index.html</code>.</li>
+            <li>If it opens in the wrong browser: right-click → Open with → Google Chrome or Microsoft Edge.</li>
+          </ol>
+        </div>
+        <div class="opt">
+          <div class="t">Option 2 · "run it locally"</div>
+          <h4>Start a local web server</h4>
+          <p>Use this when someone asks you to run it locally, or you want a <code>localhost</code> address like a real website. Open PowerShell (Start menu → type "PowerShell") and run these one at a time:</p>
+          <div class="cmd"><pre>cd D:\Tejas\website</pre><button type="button">Copy</button></div>
+          <div class="cmd"><pre>py -m http.server 8000</pre><button type="button">Copy</button></div>
+          <p>Then open <strong>http://localhost:8000</strong> in Chrome. Keep the PowerShell window open while presenting; press <code>Ctrl+C</code> in it to stop the server.</p>
+          <p class="small">If <code>py</code> is not found, try <code>python -m http.server 8000</code>. On Prince's laptop plain <code>python</code> opens the Microsoft Store, so use <code>py</code> there. If port 8000 is busy, use 8080 and open http://localhost:8080. Tested on 21 Oct 2026: the server returns the full 6.3 MB page.</p>
+        </div>
+        <div class="opt">
+          <div class="t">Option 3 · online</div>
+          <h4>The hosted copy</h4>
+          <p>The same site is published as a private Claude artifact at <code>claude.ai/artifact/AwcvGLYeqRnHpX7rHKLAnK</code>. Only the owner's account can open it until it is shared from claude.ai.</p>
+        </div>
+      </div>
+      <p>Options 1 and 2 show exactly the same page. The server only hands the file to the browser. During the build, the page was simply opened in a browser panel inside the Claude app, which is the same as Option 1. Screenshots and video frames were captured with a headless Chrome driven by Node scripts in <code>video/tools</code>; none of that is needed for a demo.</p>
+
+      <h3>A four-minute demo path</h3>
+      <ol class="steps">
+        <li><span class="n">0:00</span><div><h4>Opening</h4><p>Scroll slowly through the 3D scene and the five-step story. It explains the idea for you.</p></div></li>
+        <li><span class="n">0:30</span><div><h4>Signature</h4><p>Scroll through one workout gene by gene. In "The genes behind the benefits" chart, point out PPARGC1A (PGC-1α), the master switch for building mitochondria. It is the top raised gene in muscle 3.5 h after both cycling and weights.</p></div></li>
+        <li><span class="n">1:10</span><div><h4>Candidates</h4><p>Switch between the cycling and weights tabs. Sitagliptin is #1 for cycling; explain why with the example above.</p></div></li>
+        <li><span class="n">1:50</span><div><h4>Explorer</h4><p>Choose Weights → Muscle → 24 h, keep "Approved only" on, and sort by "Most opposite to exercise". Sirolimus appears at #5 and everolimus at #18: the mTOR blockers that should oppose weight training do. Then press <code>/</code> and search any drug a judge names.</p></div></li>
+        <li><span class="n">2:50</span><div><h4>Evidence and drug map</h4><p>Show the negative-control chart and the noise test, then hover over the drug map.</p></div></li>
+        <li><span class="n">3:30</span><div><h4>Rats vs people</h4><p>0 of the top 100 drugs are shared. That is why starting from human data matters.</p></div></li>
+      </ol>
+
+      <h3>Before you present</h3>
+      <ul>
+        <li>Use Chrome or Edge, with the internet on (3D, animations and fonts come from CDNs).</li>
+        <li>Open the page once beforehand so the libraries are cached.</li>
+        <li>Browser zoom at 100%, then F11 for full screen.</li>
+        <li>Close heavy apps and extra tabs; the 3D scene uses the graphics card.</li>
+        <li>Keep <code>video/out/TEJAS019.mp4</code> and the <code>screenshots</code> folder ready as a backup.</li>
+      </ul>
+
+      <h3>If something goes wrong</h3>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Problem</th><th>Fix</th></tr></thead>
+          <tbody>
+            <tr><td class="k">No 3D, no animations</td><td>Internet is off or the CDN is blocked. Everything else still works. Reconnect and press Ctrl+R.</td></tr>
+            <tr><td class="k">Fonts look different</td><td>Same cause: Google Fonts did not load.</td></tr>
+            <tr><td class="k">"No results embedded"</td><td>You opened <code>template.html</code>. Open <code>index.html</code>.</td></tr>
+            <tr><td class="k">"py is not recognized"</td><td>Python is not installed. Skip the server and use Option 1, or install Python from python.org.</td></tr>
+            <tr><td class="k">"Address already in use"</td><td>Another program is using port 8000. Run <code>py -m http.server 8080</code> and open http://localhost:8080.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>If asked to show the pipeline code running</h3>
+      <p>The pipeline needs a Python 3.12 environment. On Prince's laptop it already exists in <code>D:\Tejas\.venv</code>; teammates must build it first (README, "Run"). Steps 03–10 run from <code>data/processed</code>; only step 02 needs the 33 GB file. The safest live demo is step 09, which rebuilds the website from the saved results without rescoring. It takes about 8 seconds and updates the page's "generated" date:</p>
+      <div class="cmd"><pre>cd D:\Tejas</pre><button type="button">Copy</button></div>
+      <div class="cmd"><pre>.\.venv\Scripts\python.exe pipeline\09_export_website.py</pre><button type="button">Copy</button></div>
+      <p>Don't run step 04 live; it takes about 29 minutes. Opening <code>src/tejas/scoring.py</code> and <code>src/tejas/config.py</code> in an editor is usually enough to show the methods.</p>
+    </section>
+
+    <!-- ============ QA ============ -->
+    <section id="qa">
+      <h2>Questions judges may ask</h2>
+      <dl class="qa">
+        <div><dt>Is this a trained model? What is its accuracy?</dt><dd>No supervised model is trained, so there is no accuracy score. It is a similarity-ranking engine (a connectivity map), because almost no labelled exercise-mimicking drugs exist. We validate with known controls instead: mTOR blockers come out as anti-exercise in the top 0.4% (p = 5×10⁻⁵), and the top lists hold up when 20% of the data is scrambled (48–77% Jaccard overlap versus about 2% by chance).</dd></div>
+        <div><dt>What AI did you use?</dt><dd>GSFM, the Gene Set Foundation Model from the Ma'ayan Lab (2026): a 15-million-parameter autoencoder that turns gene lists into 256-number embeddings. It is one of four scorers. Removing it reshuffles the top 50 more than removing any other method: about 12 of the 50 drugs are replaced (Jaccard overlap 0.62).</dd></div>
+        <div><dt>Did you train GSFM yourselves?</dt><dd>No. We used the published weights, which is transfer learning. Our question doesn't need retraining; it needs a model that already knows which genes work together.</dd></div>
+        <div><dt>Why four methods instead of one?</dt><dd>Each one sees a different side of the match: whole ranked lists, rank order, extreme genes and biological meaning. Their rankings correlate 0.46–0.65, so they agree without being redundant. Robust Rank Aggregation rewards drugs that rank well consistently.</dd></div>
+        <div><dt>What is new compared with earlier work?</dt><dd>Earlier screens, including a 2026 Bio-IT World hackathon project that used the same GSFM model, started from rat exercise data translated to human genes. We start from human data, and we measured that the species changes the answer almost completely: 0 of the top 100 shared. The benefit index, which separates exercise's adaptations from its stress, is the second new piece.</dd></div>
+        <div><dt>Why did cancer drugs show up at first?</dt><dd>Cell damage in cancer cell lines triggers the same alarm genes as a hard workout; 8 of the top 15 plain matches for cycling were cell-killing drugs. The benefit index and the mechanism flags remove them.</dd></div>
+        <div><dt>Why use cancer cell lines?</dt><dd>That is what LINCS has at this scale: 720,216 profiles. It is a stated limitation, and the next step is testing the candidates in human muscle cells.</dd></div>
+        <div><dt>What hardware did it need?</dt><dd>A 6-core laptop. Scoring took about 29 minutes. The website is static and runs in any modern browser.</dd></div>
+        <div><dt>Is it reproducible?</dt><dd>Yes. Fixed data releases, seed 19 for every random step, all intermediate files saved, and a FAIR JSON-LD export with provenance and licences.</dd></div>
+        <div><dt>Could people take these drugs instead of exercising?</dt><dd>No. These are leads for lab testing, not treatment advice.</dd></div>
+      </dl>
+    </section>
+
+    <!-- ============ GLOSSARY ============ -->
+    <section id="glossary">
+      <h2>Glossary</h2>
+      <dl class="gloss">
+        <dt>Signature / fingerprint</dt><dd>A list of genes with how strongly each went up or down.</dd>
+        <dt>t-statistic</dt><dd>A signed number for how strongly a gene changed relative to its noise. Positive = up, negative = down.</dd>
+        <dt>FDR</dt><dd>False discovery rate: the expected share of false hits among the results you call significant. We use 0.05.</dd>
+        <dt>Connectivity map</dt><dd>The approach of matching a disease or condition fingerprint against drug fingerprints to find drugs that copy or reverse it.</dd>
+        <dt>L1000</dt><dd>The LINCS lab method that measures 978 "landmark" genes directly and infers the rest.</dd>
+        <dt>MODZ</dt><dd>A weighted average of a drug's replicate fingerprints that gives more weight to the consistent ones.</dd>
+        <dt>Embedding</dt><dd>A short list of numbers (here 256) that a neural network uses to summarise something bigger.</dd>
+        <dt>Autoencoder</dt><dd>A neural network trained to compress its input and rebuild it, which forces it to learn the important patterns.</dd>
+        <dt>Cosine similarity</dt><dd>How closely two vectors point the same way: 1 same, 0 unrelated, −1 opposite.</dd>
+        <dt>Null / permutation</dt><dd>Scores from random, shuffled inputs, used to see what "by chance" looks like.</dd>
+        <dt>RRA</dt><dd>Robust Rank Aggregation: merges several rankings and asks whether an item ranks better than chance across them.</dd>
+        <dt>Benefit index</dt><dd>Adaptive-gene agreement minus stress-gene agreement.</dd>
+        <dt>Jaccard overlap</dt><dd>Shared items divided by all distinct items in two lists. 1 = identical, 0 = nothing shared.</dd>
+        <dt>UMAP</dt><dd>A method that squeezes many numbers per item into 2-D for a map, keeping similar items close.</dd>
+        <dt>FAIR / JSON-LD</dt><dd>Findable, Accessible, Interoperable, Reusable data, written in a standard machine-readable format.</dd>
+      </dl>
+    </section>
+
+    <footer>Built from the files in the SynThera project folder (<code>src/</code>, <code>pipeline/</code>, <code>results/</code>, <code>website/</code>) and checked against them on 21 October 2026. Team TEJAS019, SASTRA Deemed University.</footer>
+  </main>
+</div>
+
+<script>
+(function () {
+  document.querySelectorAll(".cmd button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var pre = b.previousElementSibling, text = pre.textContent;
+      var done = function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy"; }, 1400); };
+      var select = function () { var r = document.createRange(); r.selectNodeContents(pre); var s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = "Selected"; setTimeout(function () { b.textContent = "Copy"; }, 1400); };
+      try { navigator.clipboard.writeText(text).then(done, select); } catch (e) { select(); }
+    });
+  });
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a"));
+  var byId = {}; links.forEach(function (a) { byId[a.getAttribute("href").slice(1)] = a; });
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { links.forEach(function (a) { a.classList.remove("on"); }); var a = byId[e.target.id]; if (a) a.classList.add("on"); } });
+    }, { rootMargin: "-20% 0px -70% 0px" });
+    document.querySelectorAll("main section[id]").forEach(function (s) { io.observe(s); });
+  }
+})();
+</script>

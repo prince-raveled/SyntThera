@@ -1,0 +1,24 @@
+method ablation (mean over informative signatures):
+                       config  control_mean_percentile  spearman_vs_full  top50_jaccard_vs_full
+    Full ensemble (4 methods)                   47.790             1.000                  1.000
+                 Without GSFM                   50.823             0.958                  0.617
+                    GSFM only                   41.557             0.775                  0.379
+Without weighted connectivity                   49.362             0.959                  0.643
+                 Without XSum                   47.273             0.968                  0.769
+ranking genes within each compound ...
+loading GSFM and embedding drug gene sets ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+ready in 0.0 min  (GSFM vocab covers 97.1% of L1000 genes)
+bootstrap muscle|resistance|3.5-4h       top-50 Jaccard vs unperturbed 0.77, pairwise 0.69
+bootstrap muscle|endurance|3.5-4h        top-50 Jaccard vs unperturbed 0.57, pairwise 0.47
+bootstrap muscle|endurance|early         top-50 Jaccard vs unperturbed 0.74, pairwise 0.67
+bootstrap muscle|resistance|early        top-50 Jaccard vs unperturbed 0.59, pairwise 0.54
+bootstrap muscle|resistance|24h          top-50 Jaccard vs unperturbed 0.48, pairwise 0.37
+bootstrap muscle|endurance|24h           top-50 Jaccard vs unperturbed 0.54, pairwise 0.45
+bootstrap blood|resistance|early         top-50 Jaccard vs unperturbed 0.67, pairwise 0.59
+bootstrap blood|endurance|early          top-50 Jaccard vs unperturbed 0.67, pairwise 0.56
+bootstrap blood|resistance|3.5-4h        top-50 Jaccard vs unperturbed 0.61, pairwise 0.49
+bootstrap blood|endurance|3.5-4h         top-50 Jaccard vs unperturbed 0.59, pairwise 0.47
+D:\Tejas\.venv\Lib\site-packages\umap\umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+done in 4.7 min (map: UMAP (cosine, n_neighbors=30))

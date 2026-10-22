@@ -1,0 +1,18 @@
+{
+ "gsfm_vocab_coverage_of_l1000_genes": 0.9712993906034991,
+ "n_compounds": 29680,
+ "informative_signatures": [
+  "muscle|resistance|3.5-4h",
+  "muscle|endurance|3.5-4h",
+  "muscle|endurance|early",
+  "muscle|resistance|early",
+  "muscle|resistance|24h",
+  "muscle|endurance|24h",
+  "blood|resistance|early",
+  "blood|endurance|early",
+  "blood|resistance|3.5-4h",
+  "blood|endurance|3.5-4h"
+ ],
+ "n_perm": 200,
+ "minutes": 29.2
+}
